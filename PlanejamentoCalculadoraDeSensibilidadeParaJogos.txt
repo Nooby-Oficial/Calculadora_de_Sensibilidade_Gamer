@@ -1,0 +1,283 @@
+Criar prompt para o maximo de eficiencia e acertividade:
+
+Prompt: Vamos criar nossa propria calculadora de sensibilidade para dispositivos moveis.
+01-Foco inicial: Game Pubg Mobile.
+	01.1-Dispositivo movel inicial: IOS-Iphone 13
+02-Lenguagens utilizadas: HTML; CSS; JavaScript
+	02.1-Modo: Cada linguagem um arquivo independente.
+03-Software de desenvolvimento: VSC.
+	03.1-Sistema do notebook: Windows 11.
+04-Acessibilidade: Todos os dispositivos.
+	04.1-Desktop; Tablete; Mobile.
+05-Fundamentos basicos: Realizar calculo de sensibilidade para jogos FPS online ou offline.
+	05.1-Realizar o calculo seguindo as configurações dos dispositivos.
+		05.1.1-Sensibilidade; Acessibilidade; conxão wifi; Atualização Software; Modelo.
+	05.2-Seguir as configurações do game: Pubg Mobile.
+		05.2.1-Base: Limites de sensibilidade; Todos os campos e funções disponiveis que podem influencia na sensibilidade.
+06-CSS e HTML: Utilizar modelos e cores mais proximo possivel do padrão do gamer.
+	06.1-Base: Cores; Imagens; Interface; Interações; Agilidade.
+	06.2-Acessibilidade: Cores; Tamanho; Animações; Tutoriais por funções; Facil entendimento comparativo com gamer.
+07-JavaScript: Os calculos devem ter precisão minima de 99.99% e maxima de 100%.
+	07.1-Sensibilidade: O calculo deve mostar o resultado para todos os campos de sensibilidade.
+		07.1.1-Configurações: Sensibilidade no Gamer.
+			07.1.2-Controles Avançados: Sensibilidade de Correr; 3ªPessoa; 1ªPessoa.
+			07.1.3-Sensibilidade:
+				Lente: Sensibilidade da Camera; Sensibilidade ao Mirar; Sensibilidade de Camera(Visão livre).
+				Giroscopio: Sensibilidade Giroscopio; Sensibilidade Giroscopio ao Mirar.
+				08-Modelo Resultado:
+				  08.1-Lente:
+					08.1.1-Sensibilidade da Camera:
+					  3ª Pessoa Sem Mira=
+					  1ª Pessoa Sem Mira=
+					  Mirar de 3ª Pessoa=
+					  Mirar de 1ª Pessoa=
+					  Ponto Vermelho, Holografica, Mira de Ferro e Mira Inclinada=
+					  Mira 2x=
+					  Mira 3x, Win94=
+					  Mira 4x, VSS=
+					  Mira 6x=
+					  Mira 8x=
+
+					08.1.2-Sensibilidade ao Mirar:
+					  3ª Pessoa Sem Mira=
+					  1ª Pessoa Sem Mira=
+					  Mirar de 3ª Pessoa=
+					  Mirar de 1ª Pessoa=
+					  Ponto Vermelho, Holografica, Mira de Ferro e Mira Inclinada=
+					  Mira 2x=
+					  Mira 3x, Win94=
+					  Mira 4x, VSS=
+					  Mira 6x=
+					  Mira 8x=
+
+					08.1.3-Sensibilidade de Camera(Visão livre):
+					  3ª Pessoa (Personagem, Veiculo)=
+					  Camera (Paraquedas)=
+					  1ª Pessoa (Personagem)=
+
+				  08.2-Giroscopio:
+					08.2.1-Sensibilidade Giroscopio:
+					  3ª Pessoa Sem Mira=
+					  1ª Pessoa Sem Mira=
+					  Mirar de 3ª Pessoa=
+					  Mirar de 1ª Pessoa=
+					  Ponto Vermelho, Holografica, Mira de Ferro e Mira Inclinada=
+					  Mira 2x=
+					  Mira 3x, Win94=
+					  Mira 4x, VSS=
+					  Mira 6x=
+					  Mira 8x=
+
+					08.2.2-Sensibilidade Giroscopio ao Mirar:
+					  3ª Pessoa Sem Mira=
+					  1ª Pessoa Sem Mira=
+					  Mirar de 3ª Pessoa=
+					  Mirar de 1ª Pessoa=
+					  Ponto Vermelho, Holografica, Mira de Ferro e Mira Inclinada=
+					  Mira 2x=
+					  Mira 3x, Win94=
+					  Mira 4x, VSS=
+					  Mira 6x=
+					  Mira 8x=
+
+Prompt de Desenvolvimento: Calculadora de Sensibilidade Mobile para PUBG MOBILE
+Objetivo: Criar uma ferramenta inteligente e responsiva para cálculo de sensibilidade em jogos FPS, com foco inicial em PUBG MOBILE, otimizando desempenho do jogador conforme dispositivo, modo de jogo e estilo pessoal.
+
+🎮 01 – Escopo do Projeto
+Jogo-alvo: PUBG MOBILE
+
+Plataforma de referência: iOS – iPhone 13
+
+Tipos de jogo suportados: Multiplayer, Battle Royale, Giroscópio
+
+💻 02 – Estrutura Técnica
+Linguagens utilizadas:
+
+HTML
+
+CSS
+
+JavaScript
+
+Arquitetura dos arquivos: Cada linguagem em arquivos independentes (ex: index.html, style.css, main.js)
+
+IDE utilizada: Visual Studio Code (VSC)
+
+Sistema operacional do desenvolvimento: Windows 11
+
+🌐 03 – Acessibilidade e Compatibilidade
+Dispositivos suportados:
+
+Desktop
+
+Tablets
+
+Smartphones
+
+Interfaces adaptativas: Design responsivo com CSS Flex/Grid
+
+Foco em performance cross-device
+
+🧮 04 – Fundamentos de Cálculo
+Base de cálculo:
+
+Sensibilidade do dispositivo
+
+Qualidade da conexão (Wi-Fi/4G)
+
+Versão de software
+
+Modelo específico do aparelho
+
+Regras do jogo:
+
+Faixas e limites permitidos no PUBG MOBILE (ex: sensibilidade de 1 a 300, FOV de 45 a 75)
+
+Mapas e tipos de mira disponíveis (FPP/TPP, escopos)
+
+🎨 05 – UI/UX Gamer-Friendly (CSS e HTML)
+Design baseado em padrões gamers:
+
+Cores escuras com destaque em neon, HUD estilizado
+
+Interatividade ágil, transições suaves
+
+Acessibilidade visual:
+
+Texto escalável, contraste ideal
+
+Tutoriais animados para explicações funcionais
+
+Interface intuitiva com ícones comparáveis ao HUD do PUBG
+
+🔢 06 – Lógica de Cálculo em JavaScript
+Precisão mínima: 99.99%
+
+Precisão máxima: 100%
+
+Cálculo detalhado para cada grupo de sensibilidade:
+
+Grupo/Subcategorias
+Sensibilidade do Jogador: Correr, 3ª Pessoa, 1ª Pessoa
+Lente: Câmera Livre, Câmera de Mira, Mira ADS
+Giroscópio: Giroscópio padrão, Giroscópio ADS (durante spray)
+
+Resultado em tempo real: Mostrado via DOM e comparado com benchmark ideal
+
+Opção de exportar perfil JSON ou copiar para importar no game
+
+📈 Extras opcionais para evolução futura
+Integração com API de estatísticas do PUBG
+
+Suporte a modelos Android
+
+Ferramenta de comparação entre perfis (pro player vs usuário)
+
+html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora de Sensibilidade - PUBG Mobile</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Calculadora Gamer PUBG Mobile</h1>
+  </header>
+
+  <main>
+    <form id="sensCalcForm">
+      <section>
+        <h2>Configuração do Dispositivo</h2>
+        <input type="text" placeholder="Modelo do Dispositivo" id="modelo" required />
+        <input type="number" placeholder="Versão do Software" id="software" required />
+        <input type="number" placeholder="Velocidade da conexão (Mbps)" id="conexao" required />
+      </section>
+
+      <section>
+        <h2>Configuração do Jogo</h2>
+        <input type="number" placeholder="Sensibilidade da câmera livre" id="camLivre" required />
+        <input type="number" placeholder="Sensibilidade ao mirar" id="mirar" required />
+        <input type="number" placeholder="Sensibilidade do giroscópio" id="gyro" required />
+      </section>
+
+      <button type="submit">Calcular</button>
+    </form>
+
+    <div id="resultado">
+      <h2>Resultado:</h2>
+      <p id="output"></p>
+    </div>
+  </main>
+
+  <script src="main.js"></script>
+</body>
+</html>
+
+css
+body {
+  font-family: 'Orbitron', sans-serif;
+  background-color: #0f0f0f;
+  color: #e0e0e0;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background-color: #ff003c;
+  padding: 1rem;
+  text-align: center;
+}
+
+main {
+  padding: 2rem;
+  max-width: 800px;
+  margin: auto;
+}
+
+section {
+  margin-bottom: 2rem;
+}
+
+input {
+  display: block;
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: none;
+}
+
+button {
+  background-color: #00ff99;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#resultado {
+  background-color: #1c1c1c;
+  padding: 1rem;
+  border-radius: 10px;
+}
+
+javascript
+document.getElementById('sensCalcForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  const camLivre = parseFloat(document.getElementById('camLivre').value);
+  const mirar = parseFloat(document.getElementById('mirar').value);
+  const gyro = parseFloat(document.getElementById('gyro').value);
+  const conexao = parseFloat(document.getElementById('conexao').value);
+
+  // Cálculo de exemplo (simplificado)
+  const pesoConexao = conexao >= 50 ? 1.05 : 0.95;
+  const resultadoFinal = ((camLivre + mirar + gyro) / 3) * pesoConexao;
+
+  document.getElementById('output').textContent =
+    'Sensibilidade Ideal: ' + resultadoFinal.toFixed(2);
+});

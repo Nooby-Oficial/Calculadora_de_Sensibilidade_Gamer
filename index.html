@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculadora de Sensibilidade</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <h1>Calculadora de Sensibilidade</h1>
+      <p class="subtitle">Ajustes finos por dispositivo, software e conexão</p>
+    </header>
+
+    <!-- Barra de progresso -->
+    <div class="stepper">
+      <div class="step" data-step="1">
+        <div class="circle">1</div>
+        <div class="label">Dispositivo</div>
+      </div>
+      <div class="line"></div>
+      <div class="step" data-step="2">
+        <div class="circle">2</div>
+        <div class="label">Conexão</div>
+      </div>
+      <div class="line"></div>
+      <div class="step" data-step="3">
+        <div class="circle">3</div>
+        <div class="label">Sensibilidades</div>
+      </div>
+    </div>
+
+    <!-- Passo 1: Dispositivo -->
+    <section class="card step-content" data-step-content="1">
+      <h2 class="card-title">Dispositivo</h2>
+      <div class="grid">
+        <div class="field">
+          <label class="label">Plataforma</label>
+          <div class="radio-row">
+            <label class="radio">
+              <input type="radio" name="platform" value="android" id="platform-android" />
+              <span>Android</span>
+            </label>
+            <label class="radio">
+              <input type="radio" name="platform" value="ios" id="platform-ios" />
+              <span>iPhone (iOS)</span>
+            </label>
+          </div>
+          <small class="hint">Escolha o sistema principal do seu aparelho.</small>
+        </div>
+
+        <div class="field">
+          <label for="deviceModel" class="label">Modelo do dispositivo</label>
+          <input type="text" id="deviceModel" placeholder="Ex.: Galaxy S21, iPhone 13" />
+          <small class="hint">Opcional, mas ajuda a manter um registro.</small>
+        </div>
+
+        <div class="field">
+          <label for="osVersion" class="label">Versão do software</label>
+          <input type="text" id="osVersion" inputmode="numeric" placeholder="Ex.: 13 (Android) ou 17 (iOS)" />
+          <small class="hint">Informe o número principal da versão (apenas dígitos).</small>
+        </div>
+      </div>
+    </section>
+
+    <!-- Passo 2: Conexão -->
+    <section class="card step-content" data-step-content="2" hidden>
+      <h2 class="card-title">Conexão</h2>
+      <div class="grid">
+        <div class="field">
+          <label for="netSpeed" class="label">Velocidade da conexão (Mbps)</label>
+          <input type="number" id="netSpeed" min="0.1" step="0.1" placeholder="Ex.: 10.0" />
+          <small class="hint">Use o valor médio que você costuma ter.</small>
+        </div>
+      </div>
+    </section>
+
+    <!-- Passo 3: Sensibilidades -->
+    <section class="card step-content" data-step-content="3" hidden>
+      <h2 class="card-title">Sensibilidades base</h2>
+      <div class="grid grid-2">
+        <div class="field">
+          <label for="cam" class="label">Câmera (1–300)</label>
+          <input type="number" id="cam" min="1" max="300" step="1" />
+        </div>
+        <div class="field">
+          <label for="ads" class="label">ADS (1–300)</label>
+          <input type="number" id="ads" min="1" max="300" step="1" />
+        </div>
+        <div class="field">
+          <label for="livre" class="label">Visão livre (1–300)</label>
+          <input type="number" id="livre" min="1" max="300" step="1" />
+        </div>
+        <div class="field">
+          <label for="gyro" class="label">Giroscópio (livre) (1–400)</label>
+          <input type="number" id="gyro" min="1" max="400" step="1" />
+        </div>
+        <div class="field">
+          <label for="gyro-ads" class="label">Giroscópio (ADS) (1–400)</label>
+          <input type="number" id="gyro-ads" min="1" max="400" step="1" />
+        </div>
+      </div>
+
+      <div class="actions-row">
+        <button id="btnSalvar" class="btn">💾 Salvar</button>
+        <button id="btnCarregar" class="btn ghost">📂 Carregar</button>
+        <button id="btnLimpar" class="btn danger">🧹 Limpar</button>
+      </div>
+    </section>
+
+    <!-- Navegação -->
+    <nav class="nav">
+      <button class="btn ghost" id="btnPrev" disabled>← Anterior</button>
+      <div class="spacer"></div>
+      <button class="btn" id="btnNext">Próximo →</button>
+      <button class="btn" id="btnFinalizar" hidden>🔄 Finalizar</button>
+    </nav>
+
+    <!-- Painel de resultados -->
+    <section id="painel" class="panel card">
+      <!-- Render dinâmico -->
+    </section>
+ 
+    <footer class="footer">
+      <small>Feito para ajudar você a encontrar o ponto certo — estável e preciso.</small>
+    </footer>
+  </main>
+
+  <script src="main.js"></script>
+</body>
+</html>
