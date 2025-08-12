@@ -464,7 +464,7 @@ document.addEventListener("DOMContentLoaded", () => {
       toast("Falha ao carregar.", "err");
     }
   });
- 
+
   btnLimpar.addEventListener("click", () => {
     restore({
       platform: "", deviceModel: "", osVersion: "", netSpeed: "",
