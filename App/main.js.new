@@ -5,12 +5,6 @@
  */
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Verifica se os módulos estão carregados
-  if (!window.PDFGenerator || !window.Storage || !window.DateFormatter) {
-    console.error("Erro: Módulos utilitários não carregados corretamente");
-    return;
-  }
-
   // ====== CONFIGURAÇÃO E CONSTANTES ======
   const CONFIG = {
     STORAGE: {
@@ -44,7 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!el) {
       el = document.createElement("div");
       el.className = "toast";
-      el.style.zIndex = "9999";
       document.body.appendChild(el);
     }
     let t;
@@ -74,63 +67,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // Passo 2
   const inNetSpeed = $("#netSpeed");
 
-  // Passo 3 - Base
+  // Passo 3
   const inCam = $("#cam");
   const inAds = $("#ads");
   const inLivre = $("#livre");
   const inGyro = $("#gyro");
   const inGyroAds = $("#gyro-ads");
 
-  // Passo 3 - Sensibilidades calculadas
-  // Câmera
-  const inSensCamTppNo = $("#cam-tppNo");
-  const inSensCamFppNo = $("#cam-fppNo");
-  const inSensCamRed = $("#cam-red");
-  const inSensCamX2 = $("#cam-2x");
-  const inSensCamX3 = $("#cam-3x");
-  const inSensCamX4 = $("#cam-4x");
-  const inSensCamX6 = $("#cam-6x");
-  const inSensCamX8 = $("#cam-8x");
-
-  // ADS
-  const inSensAdsTppNo = $("#ads-tppNo");
-  const inSensAdsFppNo = $("#ads-fppNo");
-  const inSensAdsRed = $("#ads-red");
-  const inSensAdsX2 = $("#ads-2x");
-  const inSensAdsX3 = $("#ads-3x");
-  const inSensAdsX4 = $("#ads-4x");
-  const inSensAdsX6 = $("#ads-6x");
-  const inSensAdsX8 = $("#ads-8x");
-
-  // Visão Livre
-  const inSensLivreThird = $("#livre-third");
-  const inSensLivreCam = $("#livre-cam");
-  const inSensLivreFirst = $("#livre-first");
-
-  // Giroscópio
-  const inGyroTppNo = $("#gyro-tppNo");
-  const inGyroFppNo = $("#gyro-fppNo");
-  const inGyroRed = $("#gyro-red");
-  const inGyroX2 = $("#gyro-2x");
-  const inGyroX3 = $("#gyro-3x");
-  const inGyroX4 = $("#gyro-4x");
-  const inGyroX6 = $("#gyro-6x");
-  const inGyroX8 = $("#gyro-8x");
-
-  // Giroscópio ADS
-  const inGyroAdsTppNo = $("#gyro-ads-tppNo");
-  const inGyroAdsFppNo = $("#gyro-ads-fppNo");
-  const inGyroAdsRed = $("#gyro-ads-red");
-  const inGyroAdsX2 = $("#gyro-ads-2x");
-  const inGyroAdsX3 = $("#gyro-ads-3x");
-  const inGyroAdsX4 = $("#gyro-ads-4x");
-  const inGyroAdsX6 = $("#gyro-ads-6x");
-  const inGyroAdsX8 = $("#gyro-ads-8x");
-
   // Ações
   const btnSalvar = $("#btnSalvar");
   const btnCarregar = $("#btnCarregar");
-  const btnGerarPdf = $("#btnGerarPdf");
   const btnCalcular = $("#btnCalcular");
 
   const painel = $("#painel");
@@ -154,13 +100,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function atualizarEstadoBotoes() {
     if (currentStep === 3) {
-      const camposValidos = camposSensibilidadeValidos();
-      btnCalcular.disabled = !camposValidos;
-      
-      // Só habilita Salvar e Gerar PDF se tiver calculado E campos válidos
-      const podeExecutar = resultadoCalculado && camposValidos;
-      btnSalvar.disabled = !podeExecutar;
-      btnGerarPdf.disabled = !podeExecutar;
+      btnCalcular.disabled = !camposSensibilidadeValidos();
+      btnSalvar.disabled = !(resultadoCalculado && camposSensibilidadeValidos());
     }
     if (btnNext) {
       btnNext.disabled = !canGoNext();
@@ -245,67 +186,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // ====== UI helpers ======
-  // Modal de confirmação
-  const showConfirmModal = (title, message, onConfirm) => {
-    const modal = document.createElement("div");
-    modal.className = "modal";
-    modal.style.position = "fixed";
-    modal.style.top = "0";
-    modal.style.left = "0";
-    modal.style.width = "100vw";
-    modal.style.height = "100vh";
-    modal.style.background = "rgba(0,0,0,0.75)";
-    modal.style.display = "flex";
-    modal.style.alignItems = "center";
-    modal.style.justifyContent = "center";
-    modal.style.zIndex = "10000"; // Maior que o modal de histórico
-
-    const box = document.createElement("div");
-    box.className = "modal-content";
-    box.style.background = "var(--surface)";
-    box.style.padding = "24px";
-    box.style.borderRadius = "12px";
-    box.style.maxWidth = "90vw";
-    box.style.width = "400px";
-    box.style.boxShadow = "var(--shadow)";
-
-    const titleEl = document.createElement("h3");
-    titleEl.textContent = title;
-    titleEl.style.margin = "0 0 16px";
-    titleEl.style.color = "#dbe6ff";
-    box.appendChild(titleEl);
-
-    const messageEl = document.createElement("p");
-    messageEl.style.margin = "0 0 24px";
-    messageEl.style.lineHeight = "1.5";
-    messageEl.textContent = message;
-    box.appendChild(messageEl);
-
-    const actions = document.createElement("div");
-    actions.style.display = "flex";
-    actions.style.gap = "12px";
-    actions.style.justifyContent = "flex-end";
-
-    const btnConfirm = document.createElement("button");
-    btnConfirm.className = "btn danger";
-    btnConfirm.textContent = "Sim, confirmar";
-    btnConfirm.onclick = () => {
-      document.body.removeChild(modal);
-      onConfirm();
-    };
-    actions.appendChild(btnConfirm);
-
-    const btnCancel = document.createElement("button");
-    btnCancel.className = "btn ghost";
-    btnCancel.textContent = "Não, cancelar";
-    btnCancel.onclick = () => document.body.removeChild(modal);
-    actions.appendChild(btnCancel);
-
-    box.appendChild(actions);
-    modal.appendChild(box);
-    document.body.appendChild(modal);
-  };
-
   const setStep = (n) => {
     currentStep = n;
     // Toggle views
@@ -518,7 +398,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const restore = (data) => {
     if (!data) return;
-    // Restaura os valores dos campos
     rAndroid.checked = data.platform === "android";
     rIOS.checked = data.platform === "ios";
     inDeviceModel.value = data.deviceModel || "";
@@ -529,35 +408,22 @@ document.addEventListener("DOMContentLoaded", () => {
     inLivre.value = data.livre || "";
     inGyro.value = data.gyro || "";
     inGyroAds.value = data.gyroAds || "";
-    
-    // Reset dos estados
-    showPanel = false;
-    resultadoCalculado = false;
-    
-    // Atualiza estado dos botões
-    btnSalvar.disabled = true;
-    btnGerarPdf.disabled = true;
     atualizarEstadoBotoes();
-    
-    // Limpa o painel de resultados
-    render();
   };
 
   const saveToStorage = (sobrescrever = false) => {
     try {
       const snap = snapshot();
-      const now = Date.now();
-      
-      // Salva configuração atual
       localStorage.setItem(CONFIG.STORAGE.KEY, JSON.stringify(snap));
 
-      // Carrega histórico
+      // Salva histórico
       let hist = [];
       try {
         hist = JSON.parse(localStorage.getItem(CONFIG.STORAGE.HISTORY_KEY)) || [];
       } catch {}
 
       // Remove antigos (>15 dias)
+      const now = Date.now();
       hist = hist.filter(item => now - (item.date || 0) < CONFIG.STORAGE.HISTORY_DAYS * 24 * 60 * 60 * 1000);
 
       // Verifica se já existe igual
@@ -574,78 +440,12 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
       if (!igual || sobrescrever) {
-        // Remove o antigo se for sobrescrita
-        if (igual && sobrescrever) {
-          hist = hist.filter(item => item !== igual);
-        }
         // Adiciona ao histórico
         hist.push({ ...snap, date: now });
         localStorage.setItem(CONFIG.STORAGE.HISTORY_KEY, JSON.stringify(hist));
         toast("Configuração salva com sucesso!", "ok");
       } else {
-        // Mostra modal de confirmação
-        const modal = document.createElement("div");
-        modal.className = "modal";
-        modal.style.position = "fixed";
-        modal.style.top = "0";
-        modal.style.left = "0";
-        modal.style.width = "100vw";
-        modal.style.height = "100vh";
-        modal.style.background = "rgba(0,0,0,0.75)";
-        modal.style.display = "flex";
-        modal.style.alignItems = "center";
-        modal.style.justifyContent = "center";
-        modal.style.zIndex = "9999";
-
-        const box = document.createElement("div");
-        box.className = "modal-content";
-        box.style.background = "var(--surface)";
-        box.style.padding = "24px";
-        box.style.borderRadius = "12px";
-        box.style.maxWidth = "90vw";
-        box.style.width = "460px";
-        box.style.boxShadow = "var(--shadow)";
-
-        const title = document.createElement("h3");
-        title.textContent = "Configuração já existe";
-        title.style.margin = "0 0 12px";
-        title.style.color = "#dbe6ff";
-        box.appendChild(title);
-
-        const message = document.createElement("p");
-        message.style.margin = "0 0 20px";
-        message.style.lineHeight = "1.5";
-        message.innerHTML = `
-          Uma configuração idêntica foi salva em <br>
-          <strong style="color: var(--accent)">${DateFormatter.format(igual.date).completo}</strong>
-          <br><br>
-          Deseja sobrescrever com o horário atual?
-        `;
-        box.appendChild(message);
-
-        const actions = document.createElement("div");
-        actions.style.display = "flex";
-        actions.style.gap = "12px";
-        actions.style.justifyContent = "flex-end";
-
-        const btnSobrescrever = document.createElement("button");
-        btnSobrescrever.className = "btn";
-        btnSobrescrever.textContent = "Sobrescrever";
-        btnSobrescrever.onclick = () => {
-          document.body.removeChild(modal);
-          saveToStorage(true);
-        };
-        actions.appendChild(btnSobrescrever);
-
-        const btnCancelar = document.createElement("button");
-        btnCancelar.className = "btn ghost";
-        btnCancelar.textContent = "Cancelar";
-        btnCancelar.onclick = () => document.body.removeChild(modal);
-        actions.appendChild(btnCancelar);
-
-        box.appendChild(actions);
-        modal.appendChild(box);
-        document.body.appendChild(modal);
+        toast("Esta configuração já está salva.", "err");
       }
     } catch (error) {
       console.error("Erro ao salvar:", error);
@@ -659,67 +459,7 @@ document.addEventListener("DOMContentLoaded", () => {
       toast("Calcule o resultado antes de gerar o PDF.", "err");
       return;
     }
-    
-    // Prepara os dados completos para o PDF
-    const dadosPDF = {
-      resultados: painel,
-      configDevice: {
-        plataforma: rAndroid.checked ? "Android" : "iOS",
-        modelo: inDeviceModel.value,
-        versaoSO: inOSVersion.value,
-        velocidadeNet: inNetSpeed.value
-      },
-      configSensibilidade: {
-        camera: {
-          tppNo: inSensCamTppNo.value,
-          fppNo: inSensCamFppNo.value,
-          redDot: inSensCamRed.value,
-          x2: inSensCamX2.value,
-          x3: inSensCamX3.value,
-          x4: inSensCamX4.value,
-          x6: inSensCamX6.value,
-          x8: inSensCamX8.value
-        },
-        ads: {
-          tppNo: inSensAdsTppNo.value,
-          fppNo: inSensAdsFppNo.value,
-          redDot: inSensAdsRed.value,
-          x2: inSensAdsX2.value,
-          x3: inSensAdsX3.value,
-          x4: inSensAdsX4.value,
-          x6: inSensAdsX6.value,
-          x8: inSensAdsX8.value
-        },
-        gyro: gyroEnabled ? {
-          tppNo: inGyroTppNo.value,
-          fppNo: inGyroFppNo.value,
-          redDot: inGyroRed.value,
-          x2: inGyroX2.value,
-          x3: inGyroX3.value,
-          x4: inGyroX4.value,
-          x6: inGyroX6.value,
-          x8: inGyroX8.value
-        } : null,
-        gyroAds: gyroEnabled ? {
-          tppNo: inGyroAdsTppNo.value,
-          fppNo: inGyroAdsFppNo.value,
-          redDot: inGyroAdsRed.value,
-          x2: inGyroAdsX2.value,
-          x3: inGyroAdsX3.value,
-          x4: inGyroAdsX4.value,
-          x6: inGyroAdsX6.value,
-          x8: inGyroAdsX8.value
-        } : null,
-        livre: {
-          third: inSensLivreThird.value,
-          camera: inSensLivreCam.value,
-          first: inSensLivreFirst.value
-        }
-      }
-    };
-
-    // Gera o PDF com os dados completos
-    window.PDFGenerator.generatePDF(dadosPDF);
+    window.PDFGenerator.generatePDF(painel);
   };
 
   // ====== Regras de navegação ======
@@ -817,7 +557,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch {}
 
     if (!hist.length) {
-      toast("Nenhum histórico salvo.", "err");
+      toast("Nenhum histórico salvo nos últimos 15 dias.", "err");
       return;
     }
 
@@ -826,7 +566,7 @@ document.addEventListener("DOMContentLoaded", () => {
     hist = hist.filter(item => now - (item.date || 0) < CONFIG.STORAGE.HISTORY_DAYS * 24 * 60 * 60 * 1000);
 
     if (!hist.length) {
-      toast("Nenhum histórico encontrado.", "err");
+      toast("Nenhum histórico recente encontrado.", "err");
       return;
     }
 
@@ -857,34 +597,10 @@ document.addEventListener("DOMContentLoaded", () => {
     box.style.maxHeight = "80vh";
     box.style.overflowY = "auto";
 
-    const titleBar = document.createElement("div");
-    titleBar.style.display = "flex";
-    titleBar.style.justifyContent = "space-between";
-    titleBar.style.alignItems = "center";
-    titleBar.style.marginBottom = "16px";
-
     const title = document.createElement("h3");
     title.textContent = "Histórico de Sensibilidades";
-    title.style.margin = "0";
-    titleBar.appendChild(title);
-
-    const btnLimparTodos = document.createElement("button");
-    btnLimparTodos.className = "btn ghost danger";
-    btnLimparTodos.textContent = "Limpar Histórico";
-    btnLimparTodos.onclick = () => {
-      showConfirmModal(
-        "Limpar Todo o Histórico",
-        "Tem certeza que deseja limpar todo o histórico de sensibilidades? Esta ação não pode ser desfeita.",
-        () => {
-          localStorage.removeItem(CONFIG.STORAGE.HISTORY_KEY);
-          document.body.removeChild(modal);
-          toast("Histórico limpo com sucesso!", "ok");
-          btnCarregar.disabled = true;
-        }
-      );
-    };
-    titleBar.appendChild(btnLimparTodos);
-    box.appendChild(titleBar);
+    title.style.margin = "0 0 16px";
+    box.appendChild(title);
 
     hist.forEach(item => {
       const row = document.createElement("div");
@@ -908,41 +624,26 @@ document.addEventListener("DOMContentLoaded", () => {
       btnRestore.textContent = "Restaurar";
       btnRestore.onclick = () => {
         restore(item);
-        // Reseta o estado dos resultados
         showPanel = false;
         resultadoCalculado = false;
-        // Desativa todos os botões de ação
         btnSalvar.disabled = true;
-        btnGerarPdf.disabled = true;
         document.body.removeChild(modal);
-        toast("Configuração restaurada! Calcule novamente para gerar PDF.", "ok");
+        toast("Configuração restaurada!", "ok");
       };
       actions.appendChild(btnRestore);
 
-      const btnRemover = document.createElement("button");
-      btnRemover.className = "btn ghost danger";
-      btnRemover.textContent = "Remover";
-      btnRemover.onclick = () => {
-        const date = new Date(item.date);
-        const dateStr = DateFormatter.format(date).completo;
-        showConfirmModal(
-          "Remover do Histórico",
-          `Tem certeza que deseja remover a configuração salva em ${dateStr}? Esta ação não pode ser desfeita.`,
-          () => {
-            hist = hist.filter(h => h !== item);
-            localStorage.setItem(CONFIG.STORAGE.HISTORY_KEY, JSON.stringify(hist));
-            row.remove();
-            if (hist.length === 0) {
-              document.body.removeChild(modal);
-              btnCarregar.disabled = true;
-              toast("Histórico vazio!", "ok");
-            } else {
-              toast("Item removido!", "ok");
-            }
-          }
-        );
+      const btnPDF = document.createElement("button");
+      btnPDF.className = "btn ghost";
+      btnPDF.textContent = "PDF";
+      btnPDF.onclick = () => {
+        restore(item);
+        showPanel = true;
+        resultadoCalculado = true;
+        document.body.removeChild(modal);
+        render();
+        setTimeout(() => gerarPDF(), 200);
       };
-      actions.appendChild(btnRemover);
+      actions.appendChild(btnPDF);
 
       row.appendChild(actions);
       box.appendChild(row);
@@ -968,91 +669,7 @@ document.addEventListener("DOMContentLoaded", () => {
     resultadoCalculado = true;
     btnSalvar.disabled = false;
     btnCarregar.disabled = false;
-    btnGerarPdf.disabled = false;
     render();
-  });
-
-  // Novo evento para gerar PDF
-  btnGerarPdf.addEventListener("click", () => {
-    if (!showPanel || !resultadoCalculado) {
-      toast("Calcule o resultado antes de gerar o PDF.", "err");
-      return;
-    }
-
-    // Preparar os dados para o PDF
-    const dadosPDF = {
-      configDevice: {
-        plataforma: rIOS.checked ? "iPhone (iOS)" : (rAndroid.checked ? "Android" : "—"),
-        modelo: (inDeviceModel.value || "").trim() || "—",
-        versaoSO: parseOSMajor() || "—",
-        velocidadeNet: num(inNetSpeed.value) || "—"
-      },
-      configSensibilidade: {
-        camera: {
-          base: num(inCam.value),
-          tppNo: $(".right", $("#cam-tppNo"))?.textContent,
-          fppNo: $(".right", $("#cam-fppNo"))?.textContent,
-          redDot: $(".right", $("#cam-red"))?.textContent,
-          x2: $(".right", $("#cam-2x"))?.textContent,
-          x3: $(".right", $("#cam-3x"))?.textContent,
-          x4: $(".right", $("#cam-4x"))?.textContent,
-          x6: $(".right", $("#cam-6x"))?.textContent,
-          x8: $(".right", $("#cam-8x"))?.textContent
-        },
-        ads: {
-          base: num(inAds.value),
-          tppNo: $(".right", $("#ads-tppNo"))?.textContent,
-          fppNo: $(".right", $("#ads-fppNo"))?.textContent,
-          redDot: $(".right", $("#ads-red"))?.textContent,
-          x2: $(".right", $("#ads-2x"))?.textContent,
-          x3: $(".right", $("#ads-3x"))?.textContent,
-          x4: $(".right", $("#ads-4x"))?.textContent,
-          x6: $(".right", $("#ads-6x"))?.textContent,
-          x8: $(".right", $("#ads-8x"))?.textContent
-        },
-        livre: {
-          base: num(inLivre.value),
-          third: $(".right", $("#livre-third"))?.textContent,
-          camera: $(".right", $("#livre-cam"))?.textContent,
-          first: $(".right", $("#livre-first"))?.textContent
-        }
-      }
-    };
-
-    // Adicionar configurações do giroscópio se estiver habilitado
-    const gyroEnabled = num(inGyro.value) > 0 && num(inGyroAds.value) > 0;
-    if (gyroEnabled) {
-      dadosPDF.configSensibilidade.gyro = {
-        base: num(inGyro.value),
-        tppNo: $(".right", $("#gyro-tppNo"))?.textContent,
-        fppNo: $(".right", $("#gyro-fppNo"))?.textContent,
-        redDot: $(".right", $("#gyro-red"))?.textContent,
-        x2: $(".right", $("#gyro-2x"))?.textContent,
-        x3: $(".right", $("#gyro-3x"))?.textContent,
-        x4: $(".right", $("#gyro-4x"))?.textContent,
-        x6: $(".right", $("#gyro-6x"))?.textContent,
-        x8: $(".right", $("#gyro-8x"))?.textContent
-      };
-      dadosPDF.configSensibilidade.gyroAds = {
-        base: num(inGyroAds.value),
-        tppNo: $(".right", $("#gyro-ads-tppNo"))?.textContent,
-        fppNo: $(".right", $("#gyro-ads-fppNo"))?.textContent,
-        redDot: $(".right", $("#gyro-ads-red"))?.textContent,
-        x2: $(".right", $("#gyro-ads-2x"))?.textContent,
-        x3: $(".right", $("#gyro-ads-3x"))?.textContent,
-        x4: $(".right", $("#gyro-ads-4x"))?.textContent,
-        x6: $(".right", $("#gyro-ads-6x"))?.textContent,
-        x8: $(".right", $("#gyro-ads-8x"))?.textContent
-      };
-    }
-
-    try {
-      window.PDFGenerator.generatePDF(dadosPDF);
-      toast("PDF gerado com sucesso!", "ok");
-    } catch (error) {
-      console.error("Erro ao gerar PDF:", error);
-      toast("Erro ao gerar o PDF. Tente novamente.", "err");
-    }
   });
 
   // ====== Init ======

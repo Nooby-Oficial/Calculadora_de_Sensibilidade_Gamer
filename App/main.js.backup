@@ -1,0 +1,453 @@
+/**
+ * Calculadora de Sensibilidade para PUBG Mobile
+ * @description Calcula e gerencia configurações de sensibilidade com base em dispositivo,
+ * software e conexão, salvando histórico e permitindo exportação em PDF.
+ * @version 2.0.0
+ * @author Nooby-Oficial
+ */
+
+document.addEventListener("DOMContentLoaded", () => {
+  // ====== Module Validation ======
+  try {
+    if (!window.PDFGenerator || !window.Storage || !window.DateFormatter) {
+      throw new Error("Módulos utilitários não carregados corretamente");
+    }
+    if (!window.PDFGenerator.elementToPDF || !window.Storage.save || !window.DateFormatter.format) {
+      throw new Error("Funções essenciais dos módulos não encontradas");
+    }
+  } catch (error) {
+    console.error("Erro crítico:", error);
+    alert("Erro ao carregar módulos necessários. Por favor, recarregue a página.");
+    return;
+  }
+
+  // ====== CONFIGURAÇÃO E CONSTANTES ======
+  const CONFIG = {
+    STORAGE: {
+      KEY: "sensConfigV4",
+      HISTORY_KEY: "sensConfigV4History",
+      HISTORY_DAYS: 15
+    },
+    LIMITS: {
+      STANDARD: { min: 1, max: 300 },
+      GYRO: { min: 1, max: 400 }
+    }
+  };
+
+  // ====== UTILITÁRIOS ======
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+  const num = (v) => {
+    if (v == null || v === '') return null;
+    const s = String(v).trim().replace(",", ".");
+    const n = parseFloat(s);
+    return Number.isFinite(n) ? n : null;
+  };
+
+  // Use clamp from utils.js if available, otherwise define locally
+  const clamp = window.Utils?.clamp || ((v, min, max) => Math.max(min, Math.min(max, v)));
+  const round = (v) => Math.round(v);
+
+  // Toast notification system
+  const toast = (() => {
+    try {
+      let el = $(".toast");
+      if (!el) {
+        el = document.createElement("div");
+        el.className = "toast";
+        el.style.zIndex = "9999";
+        document.body.appendChild(el);
+      }
+      let t;
+      return (msg, type = "ok", ms = 1600) => {
+        try {
+          el.textContent = msg;
+          el.classList.remove("ok", "err");
+          el.classList.add(type);
+          el.classList.add("show");
+          clearTimeout(t);
+          t = setTimeout(() => el.classList.remove("show"), ms);
+        } catch (error) {
+          console.error('Erro ao mostrar toast:', error);
+          alert(msg); // Fallback para alert em caso de erro
+        }
+      };
+    } catch (error) {
+      console.error('Erro ao criar sistema de toast:', error);
+      return (msg) => alert(msg); // Fallback completo para alert
+    }
+  })();
+
+  // ====== DOM refs ======
+  // ... [Previous DOM references remain the same]
+
+  // ====== Estado ======
+  let currentStep = 1;
+  let showPanel = false;
+  let resultadoCalculado = false;
+  
+  // ====== Validações de campos e estado ======
+  const validateInputs = () => {
+    try {
+      const inputs = {
+        cam: inCam,
+        ads: inAds,
+        livre: inLivre,
+        gyro: inGyro,
+        gyroAds: inGyroAds
+      };
+      
+      return Object.entries(inputs).every(([type, input]) => {
+        if (!input) return false;
+        const value = num(input.value);
+        const config = FIELD_CFG[type];
+        if (!config) return false;
+        return value !== null && value >= config.min && value <= config.max;
+      });
+    } catch (error) {
+      console.error('Erro na validação:', error);
+      return false;
+    }
+  };
+
+  const validateDeviceInfo = () => {
+    try {
+      return rAndroid.checked || rIOS.checked;
+    } catch (error) {
+      console.error('Erro na validação do dispositivo:', error);
+      return false;
+    }
+  };
+
+  const validateNetworkInfo = () => {
+    try {
+      const speed = num(inNetSpeed.value);
+      return speed !== null && speed > 0;
+    } catch (error) {
+      console.error('Erro na validação da rede:', error);
+      return false;
+    }
+  };
+
+  const atualizarEstadoBotoes = () => {
+    try {
+      if (currentStep === 3) {
+        const camposValidos = validateInputs();
+        btnCalcular.disabled = !camposValidos;
+        btnGerarPdf.disabled = !resultadoCalculado || !camposValidos;
+        btnSalvar.disabled = !resultadoCalculado || !camposValidos;
+      }
+      if (btnNext) {
+        btnNext.disabled = currentStep === 3 && !validateInputs();
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar botões:', error);
+      // Em caso de erro, desativa botões por segurança
+      [btnCalcular, btnGerarPdf, btnSalvar, btnNext].forEach(btn => {
+        if (btn) btn.disabled = true;
+      });
+    }
+  };
+
+  // ====== Render ======
+  const render = () => {
+    try {
+      if (!showPanel) {
+        painel.style.display = 'none';
+        return;
+      }
+      
+      painel.style.display = 'block';
+      painel.innerHTML = '';
+      
+      const configDevice = {
+        plataforma: rIOS.checked ? "iOS" : (rAndroid.checked ? "Android" : "Não definido"),
+        modelo: inDeviceModel.value || "Não especificado",
+        versaoSO: inOSVersion.value || "Não especificada",
+        velocidadeNet: inNetSpeed.value || "Não especificada"
+      };
+
+      addGrupo("Informações do Dispositivo", [
+        ["Plataforma", configDevice.plataforma],
+        ["Modelo", configDevice.modelo],
+        ["Versão do Sistema", configDevice.versaoSO],
+        ["Velocidade da Internet", `${configDevice.velocidadeNet} Mbps`]
+      ]);
+
+      if (!resultadoCalculado) return;
+
+      addGrupo("Configurações Base", [
+        ["Câmera", inCam.value],
+        ["ADS", inAds.value],
+        ["Visão Livre", inLivre.value],
+        ["Giroscópio", inGyro.value],
+        ["Giroscópio (ADS)", inGyroAds.value]
+      ]);
+
+      atualizarEstadoBotoes();
+    } catch (error) {
+      console.error('Erro na renderização:', error);
+      toast('Erro ao atualizar visualização', 'err');
+    }
+  };
+
+  // ====== Event Cleanup ======
+  const cleanupEventListeners = () => {
+    try {
+      const elements = [
+        rAndroid, rIOS, inDeviceModel, inOSVersion,
+        inNetSpeed, inCam, inAds, inLivre, inGyro, inGyroAds,
+        btnPrev, btnNext, btnFinalizar, btnSalvar, btnCarregar,
+        btnCalcular, btnGerarPdf
+      ];
+      
+      elements.forEach(el => {
+        if (el && el.removeEventListener) {
+          el.removeEventListener("input", desativarSalvar);
+          el.removeEventListener("click", desativarSalvar);
+        }
+      });
+
+      // Cleanup PDF generator
+      if (window.PDFGenerator && PDFGenerator.cleanup) {
+        PDFGenerator.cleanup();
+      }
+    } catch (error) {
+      console.error('Erro na limpeza de eventos:', error);
+    }
+  };
+
+  // ====== Salvar como PDF ======
+  const gerarPDF = () => {
+    try {
+      if (!resultadoCalculado) {
+        throw new Error('Nenhum resultado calculado');
+      }
+
+      if (!validateInputs()) {
+        throw new Error('Valores de sensibilidade inválidos');
+      }
+
+      const configDevice = {
+        plataforma: rIOS.checked ? "iOS" : (rAndroid.checked ? "Android" : "Não definido"),
+        modelo: inDeviceModel.value || "Não especificado",
+        versaoSO: inOSVersion.value || "Não especificada",
+        velocidadeNet: inNetSpeed.value || "Não especificada"
+      };
+
+      const configSensibilidade = {
+        camera: {
+          tppNo: inSensCamTppNo.value,
+          fppNo: inSensCamFppNo.value,
+          redDot: inSensCamRed.value,
+          x2: inSensCamX2.value,
+          x3: inSensCamX3.value,
+          x4: inSensCamX4.value,
+          x6: inSensCamX6.value,
+          x8: inSensCamX8.value
+        },
+        ads: {
+          tppNo: inSensAdsTppNo.value,
+          fppNo: inSensAdsFppNo.value,
+          redDot: inSensAdsRed.value,
+          x2: inSensAdsX2.value,
+          x3: inSensAdsX3.value,
+          x4: inSensAdsX4.value,
+          x6: inSensAdsX6.value,
+          x8: inSensAdsX8.value
+        },
+        livre: {
+          third: inSensLivreThird.value,
+          camera: inSensLivreCam.value,
+          first: inSensLivreFirst.value
+        },
+        gyro: inGyro.value ? {
+          tppNo: inGyroTppNo.value,
+          fppNo: inGyroFppNo.value,
+          redDot: inGyroRed.value,
+          x2: inGyroX2.value,
+          x3: inGyroX3.value,
+          x4: inGyroX4.value,
+          x6: inGyroX6.value,
+          x8: inGyroX8.value
+        } : null,
+        gyroAds: inGyroAds.value ? {
+          tppNo: inGyroAdsTppNo.value,
+          fppNo: inGyroAdsFppNo.value,
+          redDot: inGyroAdsRed.value,
+          x2: inGyroAdsX2.value,
+          x3: inGyroAdsX3.value,
+          x4: inGyroAdsX4.value,
+          x6: inGyroAdsX6.value,
+          x8: inGyroAdsX8.value
+        } : null
+      };
+
+      const result = PDFGenerator.elementToPDF({
+        configDevice,
+        configSensibilidade
+      });
+
+      if (!result) {
+        throw new Error('Falha ao gerar PDF');
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      toast('Erro ao gerar PDF', 'err');
+      return false;
+    }
+  };
+
+  // ====== Event Handlers ======
+  const desativarSalvar = () => {
+    try {
+      btnSalvar.disabled = true;
+      btnGerarPdf.disabled = true;
+      resultadoCalculado = false;
+      showPanel = false;
+      render();
+    } catch (error) {
+      console.error('Erro ao desativar botões:', error);
+    }
+  };
+
+  // Add event listeners with error handling
+  const setupEventListeners = () => {
+    try {
+      // Device info inputs
+      [rAndroid, rIOS, inDeviceModel, inOSVersion].forEach(el => {
+        if (el) el.addEventListener("input", desativarSalvar);
+      });
+      
+      // Network speed input
+      if (inNetSpeed) {
+        inNetSpeed.addEventListener("input", desativarSalvar);
+      }
+
+      // Sensitivity inputs
+      [inCam, inAds, inLivre, inGyro, inGyroAds].forEach(el => {
+        if (!el) return;
+        el.addEventListener("input", () => {
+          desativarSalvar();
+          atualizarEstadoBotoes();
+        });
+      });
+
+      // Navigation buttons
+      if (btnPrev) {
+        btnPrev.addEventListener("click", () => {
+          if (currentStep > 1) {
+            setStep(currentStep - 1);
+          }
+        });
+      }
+
+      if (btnNext) {
+        btnNext.addEventListener("click", () => {
+          if (currentStep < 3 && canGoNext()) {
+            setStep(currentStep + 1);
+          }
+        });
+      }
+
+      // Action buttons
+      if (btnCalcular) {
+        btnCalcular.addEventListener("click", () => {
+          try {
+            if (!validateInputs()) {
+              toast('Verifique os valores das sensibilidades', 'err');
+              return;
+            }
+            
+            calcularSensibilidades();
+            resultadoCalculado = true;
+            showPanel = true;
+            render();
+            
+            btnSalvar.disabled = false;
+            btnGerarPdf.disabled = false;
+            
+            toast('Cálculos realizados com sucesso!', 'ok');
+          } catch (error) {
+            console.error('Erro ao calcular:', error);
+            toast('Erro ao realizar cálculos', 'err');
+          }
+        });
+      }
+
+      if (btnGerarPdf) {
+        btnGerarPdf.addEventListener("click", () => {
+          try {
+            if (!resultadoCalculado) {
+              toast('Calcule a sensibilidade primeiro', 'err');
+              return;
+            }
+            if (gerarPDF()) {
+              toast('PDF gerado com sucesso!', 'ok');
+            }
+          } catch (error) {
+            console.error('Erro ao gerar PDF:', error);
+            toast('Erro ao gerar PDF', 'err');
+          }
+        });
+      }
+
+      // Cleanup on page unload
+      window.addEventListener('unload', cleanupEventListeners);
+
+    } catch (error) {
+      console.error('Erro ao configurar eventos:', error);
+      toast('Erro ao inicializar aplicação', 'err');
+    }
+  };
+
+  // ====== Init ======
+  const initializeApp = () => {
+    try {
+      // Valida elementos essenciais
+      const requiredElements = {
+        btnSalvar,
+        btnCarregar,
+        btnGerarPdf,
+        btnCalcular,
+        painel,
+        inCam,
+        inAds,
+        inLivre,
+        inGyro,
+        inGyroAds,
+        rAndroid,
+        rIOS
+      };
+
+      for (const [name, element] of Object.entries(requiredElements)) {
+        if (!element) {
+          throw new Error(`Elemento necessário não encontrado: ${name}`);
+        }
+      }
+
+      // Inicializa estado
+      setStep(1);
+      showPanel = false;
+      btnSalvar.disabled = true;
+      btnCarregar.disabled = true;
+      btnGerarPdf.disabled = true;
+      
+      // Configura eventos e renderiza
+      atualizarEstadoBotoes();
+      setupEventListeners();
+      render();
+
+      console.log('Aplicação inicializada com sucesso');
+    } catch (error) {
+      console.error('Erro na inicialização:', error);
+      toast('Erro ao iniciar aplicação. Por favor, recarregue a página.', 'err');
+      throw error;
+    }
+  };
+
+  // Inicia a aplicação
+  initializeApp();
+});

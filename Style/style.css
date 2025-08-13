@@ -1,4 +1,15 @@
+/**
+ * Calculadora de Sensibilidade para PUBG Mobile
+ * Tema escuro com destaques em azul, otimizado para leitura
+ */
+
+/**
+ * Variáveis CSS globais
+ * - Cores principais do tema
+ * - Dimensões e efeitos comuns
+ */
 :root {
+  /* Cores do tema */
   --bg: #0b1020;
   --surface: #121a2e;
   --surface-2: #0e1527;
@@ -10,6 +21,7 @@
   --danger: #ef4444;
   --ok: #22c55e;
 
+  /* Layout e efeitos */
   --radius: 14px;
   --radius-sm: 10px;
   --shadow: 0 8px 30px rgba(0,0,0,0.35);
@@ -17,9 +29,15 @@
 
 * { box-sizing: border-box; }
 html, body { height: 100%; }
+/**
+ * Fontes do sistema otimizadas para diferentes plataformas
+ * Removida dependência de fontes externas
+ */
 body {
   margin: 0;
-  font-family: Inter, Segoe UI, system-ui, -apple-system, Roboto, Arial, "Noto Sans", sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", 
+               "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", 
+               "Droid Sans", "Helvetica Neue", Arial, sans-serif;
   background: radial-gradient(1000px 600px at 10% 0%, #0f1840 0%, var(--bg) 45%),
               radial-gradient(800px 500px at 90% 10%, #08203a 0%, transparent 55%),
               var(--bg);
@@ -99,7 +117,11 @@ body {
 .radio input { accent-color: var(--accent); }
 
 .actions-row {
-  display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  justify-content: flex-start; /* Alinha os botões à esquerda */
 }
 
 .btn {
