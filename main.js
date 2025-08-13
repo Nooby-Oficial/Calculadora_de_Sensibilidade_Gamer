@@ -449,10 +449,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Botões principais
 
   //Antes--Salvar antes de carregar o resultado.
-  btnSalvar.addEventListener("click", () => {
-    saveToStorage(); // mantém compatibilidade com "Carregar"
-    gerarPDF();      // gera PDF para salvar offline
-  });
+  //btnSalvar.addEventListener("click", () => {
+    //saveToStorage(); // mantém compatibilidade com "Carregar"
+    //gerarPDF();      // gera PDF para salvar offline
+  //});
 
   //Depois--Salvar depois de carregar o resultado. 
   //Adicionado: verificação if (!showPanel) 
