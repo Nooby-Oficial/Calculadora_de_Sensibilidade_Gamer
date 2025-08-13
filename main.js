@@ -580,16 +580,6 @@
   }
 
   // Botões principais
-
-  //Antes--Salvar antes de carregar o resultado.
-  //btnSalvar.addEventListener("click", () => {
-    //saveToStorage(); // mantém compatibilidade com "Carregar"
-    //gerarPDF();      // gera PDF para salvar offline
-  //});
-
-  //Depois--Salvar depois de carregar o resultado. 
-  //Adicionado: verificação if (!showPanel) 
-  //Isso impede que o usuário gere PDF sem ter carregado os dados
   btnSalvar.addEventListener("click", () => {
     if (!showPanel || !resultadoCalculado) return toast("Calcule o resultado antes de salvar.", "err");
     saveToStorage();
@@ -597,24 +587,6 @@
     btnCarregar.disabled = false; // Ativa carregar
   });
 
-
-  //Antes--Carregar o resultado depois de salvar.
-  //btnCarregar.addEventListener("click", () => {
-    //try {
-      //const raw = localStorage.getItem(STORAGE_KEY);
-      //if (!raw) { toast("Nada para carregar.", "err"); return; }
-      //restore(JSON.parse(raw));
-      //showPanel = true;           // painel só aparece após clicar "Carregar"
-      //toast("Configurações carregadas.", "ok");
-      //render();
-    //} catch {
-      //toast("Falha ao carregar.", "err");
-    //}
-  //});
-
-  //Depois--Carregar o resultado antes de salvar 
-  //(Adicionado: btnSalvar.disabled = false; 
-  //Isso garante que o botão Salvar só fique ativo após o painel ser exibido).
   btnCarregar.addEventListener("click", () => {
     // Exibe painel de histórico
     let hist = [];
