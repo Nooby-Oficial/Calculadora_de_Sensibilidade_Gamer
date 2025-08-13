@@ -1,3 +1,8 @@
+Faça as alterações desejadas - Subir atualização de projeto.
+git add .
+git commit -m "Alteração no repositório local"
+git push <nome-remoto> main
+
 Criar prompt para o maximo de eficiencia e acertividade:
 
 Prompt: Vamos criar nossa propria calculadora de sensibilidade para dispositivos moveis.
@@ -80,12 +85,18 @@ Prompt: Vamos criar nossa propria calculadora de sensibilidade para dispositivos
 					  Mira 6x=
 					  Mira 8x=
 
-Desconcidere a melhoria anterior, vamos utiliza a melhoria anterior como referencia e fazer diferente: 
+Vamos realizar melhorias: 
 1-O botão "Salvar" tem finalidade apenas de salvar o resultado em pdf e armazenar o ultimo resultado - Esta será sua função base.
 2-O botão "Carregar" tem a finlizadade de carregar o resultado final, porem o atualmente se tentarmos alterar algum resultado clicando em carregar, envez de carregar o novo resultado ele traz sempre o primeiro. Agora sua função será apenas carregar o ultimo valor salvo, sempre que solicitado, ele deve trocar de posição como o novo botão "Calcular" - Esta será sua função base.
 3-O botão "Limpar" tem função parecida com o botão "Finalizar", vamos manter o apenas o "Finalizar" e alterar o "Limpar" para "Calcular", ele agora será responsavel por carrregar o resultado final e o mesmo deve toda vez que algum valor for alterado realizar a atualização do resultado ao ser clicado - Esta será sua função base.
 Atenção: O botão "Salvar" so deve ser ativado após o resultado com botão "Calcular", e o botão "Carregar" so deve ser ativo após ter algum resultado salvo com botão "Salvar". Toda vez que haver alteração no resultado o botão "Salvar" deve ser desativado e so reativar após um novo resultado final.
 Vamos aplicar essas duas melhorias de forma clara e funcional, mantendo a estrutura original do projeto!
+
+Vamos realizar melhorias:
+1-O botão "Salvar" agora opção de sobreescrever com novo data e horarios.
+2-O botão "Carregar" agora vai ser "Historico de Sensibilidades" e alem de trazer de volta o salve a função de gerar o pdf completo do resultado final será na tela de historico, ao loda da opção restaurar add opção do pdf.
+
+Vamos aplicar essas melhorias de forma clara e funcional, mantendo a estrutura original do projeto!
 
 Prompt de Desenvolvimento: Calculadora de Sensibilidade Mobile para PUBG MOBILE
 Objetivo: Criar uma ferramenta inteligente e responsiva para cálculo de sensibilidade em jogos FPS, com foco inicial em PUBG MOBILE, otimizando desempenho do jogador conforme dispositivo, modo de jogo e estilo pessoal.

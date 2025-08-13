@@ -1,6 +1,30 @@
+  // ====== Validação de campos da tela 3 ======
+  document.addEventListener("DOMContentLoaded", () => {
+    // ...existing code...
+    // ====== Validação de campos da tela 3 ======
+    function camposSensibilidadeValidos() {
+      // Todos os campos devem ser preenchidos e válidos
+      const campos = [inCam, inAds, inLivre, inGyro, inGyroAds];
+      return campos.every((el, i) => {
+        const v = num(el.value);
+        if (el === inGyro || el === inGyroAds) {
+          return Number.isFinite(v) && v >= 1 && v <= 400;
+        } else {
+          return Number.isFinite(v) && v >= 1 && v <= 300;
+        }
+      });
+    }
+
+    function atualizarEstadoBotoes() {
+      // Calcular só pode se todos os campos válidos
+      btnCalcular.disabled = !camposSensibilidadeValidos();
+      // Salvar só pode se resultado calculado e campos válidos
+      btnSalvar.disabled = !(resultadoCalculado && camposSensibilidadeValidos());
+    }
+    // ...restante do código dentro do DOMContentLoaded...
 // main.js — Wizard 3 passos + cálculo com fatores de dispositivo/OS/conexão
 // Atualizações: Salvar => PDF; Carregar => revela painel; Finalizar => recarrega a página.
-document.addEventListener("DOMContentLoaded", () => {
+// (DOMContentLoaded já está no final do arquivo)
   // ====== Helpers ======
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -57,14 +81,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // Ações
   const btnSalvar = $("#btnSalvar");
   const btnCarregar = $("#btnCarregar");
-  const btnLimpar = $("#btnLimpar");
+  const btnCalcular = $("#btnCalcular"); // Renomeado para btnCalcular
 
   const painel = $("#painel");
 
   // ====== Estado ======
   let currentStep = 1;
-  let showPanel = false; // resultado só aparece após "Carregar"
+  let showPanel = false; // resultado só aparece após "Calcular"
+  let resultadoCalculado = false; // controla se já foi calculado
   const STORAGE_KEY = "sensConfigV4";
+  const STORAGE_HISTORY_KEY = "sensConfigV4History";
 
   // Faixas por campo
   const FIELD_CFG = {
@@ -218,7 +244,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ====== Render ======
   const render = () => {
-    // Respeita a regra: só mostra resultados após "Carregar"
+    // Só mostra resultados após "Calcular"
     painel.style.display = showPanel ? "block" : "none";
     if (!showPanel) return;
 
@@ -340,12 +366,114 @@ document.addEventListener("DOMContentLoaded", () => {
     inLivre.value = data.livre || "";
     inGyro.value = data.gyro || "";
     inGyroAds.value = data.gyroAds || "";
+    atualizarEstadoBotoes();
   };
 
-  const saveToStorage = () => {
+  const saveToStorage = (sobrescrever = false) => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot()));
-      toast("Configurações salvas localmente.", "ok");
+      const snap = snapshot();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(snap));
+      // Salva histórico
+      let hist = [];
+      try {
+        hist = JSON.parse(localStorage.getItem(STORAGE_HISTORY_KEY)) || [];
+      } catch {}
+      // Remove antigos (>15 dias)
+      const now = Date.now();
+      hist = hist.filter(item => now - (item.date || 0) < 15 * 24 * 60 * 60 * 1000);
+      // Verifica se já existe igual
+      const igual = hist.find(item =>
+        item.cam === snap.cam && item.ads === snap.ads && item.livre === snap.livre &&
+        item.gyro === snap.gyro && item.gyroAds === snap.gyroAds &&
+        item.platform === snap.platform && item.deviceModel === snap.deviceModel &&
+        item.osVersion === snap.osVersion && item.netSpeed === snap.netSpeed
+      );
+      if (igual && !sobrescrever) {
+        const d = new Date(igual.date);
+        // Modal suspenso para sobrescrever
+        let modal = document.getElementById('modal-sobrescrever');
+        if (modal) document.body.removeChild(modal);
+        modal = document.createElement('div');
+        modal.id = 'modal-sobrescrever';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100vw';
+        modal.style.height = '100vh';
+        modal.style.background = 'rgba(0,0,0,0.55)';
+        modal.style.zIndex = 10001;
+        modal.style.display = 'flex';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+        const box = document.createElement('div');
+        box.style.background = '#181f2e';
+        box.style.borderRadius = '12px';
+        box.style.padding = '28px 22px';
+        box.style.maxWidth = '95vw';
+        box.style.width = '410px';
+        box.style.boxShadow = '0 8px 32px #0008';
+        box.style.display = 'flex';
+        box.style.flexDirection = 'column';
+        box.style.alignItems = 'center';
+        const title = document.createElement('h2');
+        title.textContent = 'Registro já salvo';
+        title.style.margin = '0 0 10px 0';
+        title.style.fontSize = '1.15rem';
+        title.style.color = '#fff';
+        box.appendChild(title);
+        const msg = document.createElement('div');
+        msg.style.color = '#dbe6ff';
+        msg.style.marginBottom = '18px';
+        msg.style.textAlign = 'center';
+        msg.innerHTML = `Já existe um registro igual salvo em <span style='color:#5b8cff;'>${d.toLocaleDateString('pt-BR')}</span> às <span style='color:#5b8cff;'>${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>.<br>Deseja sobrescrever com o novo horário?`;
+        box.appendChild(msg);
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.gap = '12px';
+        row.style.justifyContent = 'center';
+        row.style.width = '100%';
+        // Botão sobrescrever
+        const btnSobre = document.createElement('button');
+        btnSobre.textContent = 'Sobrescrever';
+        btnSobre.className = 'btn';
+        btnSobre.style.background = '#5b8cff';
+        btnSobre.style.color = '#fff';
+        btnSobre.style.fontWeight = '600';
+        btnSobre.style.fontSize = '1rem';
+        btnSobre.style.padding = '10px 22px';
+        btnSobre.style.border = 'none';
+        btnSobre.style.borderRadius = '8px';
+        btnSobre.onclick = () => {
+          saveToStorage(true);
+          document.body.removeChild(modal);
+          toast('Registro sobrescrito com sucesso!', 'ok', 1800);
+        };
+        // Botão cancelar
+        const btnCancel = document.createElement('button');
+        btnCancel.textContent = 'Cancelar';
+        btnCancel.className = 'btn ghost';
+        btnCancel.style.fontSize = '1rem';
+        btnCancel.style.padding = '10px 22px';
+        btnCancel.onclick = () => {
+          document.body.removeChild(modal);
+        };
+        row.appendChild(btnSobre);
+        row.appendChild(btnCancel);
+        box.appendChild(row);
+        modal.appendChild(box);
+        document.body.appendChild(modal);
+        btnSalvar.onclick = null;
+        return;
+      }
+      // Se sobrescrever, remove o antigo igual
+      if (igual && sobrescrever) {
+        hist = hist.filter(item => item !== igual);
+      }
+      hist.push({ ...snap, date: now });
+      localStorage.setItem(STORAGE_HISTORY_KEY, JSON.stringify(hist));
+      toast("Configurações salvas no histórico.", "ok");
+      btnCarregar.disabled = false; // Ativa botão Carregar após salvar
+      btnSalvar.onclick = null;
     } catch {
       toast("Não foi possível salvar localmente.", "err");
     }
@@ -403,14 +531,18 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // ====== Eventos ======
-  [rAndroid, rIOS, inDeviceModel, inOSVersion].forEach(el => {
-    el && el.addEventListener("input", () => {
-      render();
-    });
-  });
-  inNetSpeed.addEventListener("input", () => {
+  // Sempre que qualquer campo for alterado, desativa o botão Salvar e esconde resultado
+  const desativarSalvar = () => {
+    btnSalvar.disabled = true;
+    showPanel = false;
+    resultadoCalculado = false;
+    atualizarEstadoBotoes();
     render();
+  };
+  [rAndroid, rIOS, inDeviceModel, inOSVersion].forEach(el => {
+    el && el.addEventListener("input", desativarSalvar);
   });
+  inNetSpeed.addEventListener("input", desativarSalvar);
 
   const FIELD_MAP = { cam: "cam", ads: "ads", livre: "livre", "gyro": "gyro", "gyro-ads": "gyroAds" };
   [inCam, inAds, inLivre, inGyro, inGyroAds].forEach(el => {
@@ -424,7 +556,8 @@ document.addEventListener("DOMContentLoaded", () => {
           if (lim !== v) el.value = String(lim);
         }
       }
-      render();
+      desativarSalvar();
+      atualizarEstadoBotoes();
     });
   });
 
@@ -458,9 +591,10 @@ document.addEventListener("DOMContentLoaded", () => {
   //Adicionado: verificação if (!showPanel) 
   //Isso impede que o usuário gere PDF sem ter carregado os dados
   btnSalvar.addEventListener("click", () => {
-    if (!showPanel) return toast("Carregue o resultado antes de salvar.", "err");
+    if (!showPanel || !resultadoCalculado) return toast("Calcule o resultado antes de salvar.", "err");
     saveToStorage();
-    gerarPDF();
+    btnSalvar.disabled = true; // Desativa após salvar
+    btnCarregar.disabled = false; // Ativa carregar
   });
 
 
@@ -482,32 +616,121 @@ document.addEventListener("DOMContentLoaded", () => {
   //(Adicionado: btnSalvar.disabled = false; 
   //Isso garante que o botão Salvar só fique ativo após o painel ser exibido).
   btnCarregar.addEventListener("click", () => {
+    // Exibe painel de histórico
+    let hist = [];
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) { toast("Nada para carregar.", "err"); return; }
-      restore(JSON.parse(raw));
-      showPanel = true;
-      btnSalvar.disabled = false; // ✅ habilita botão Salvar após carregar
-      toast("Configurações carregadas.", "ok");
-      render();
-    } catch {
-      toast("Falha ao carregar.", "err");
+      hist = JSON.parse(localStorage.getItem(STORAGE_HISTORY_KEY)) || [];
+    } catch {}
+    if (!hist.length) {
+      toast("Nenhum histórico salvo nos últimos 15 dias.", "err");
+      return;
     }
+    // Cria modal simples
+    let modal = document.getElementById("modal-historico");
+    if (modal) modal.remove();
+    modal = document.createElement("div");
+    modal.id = "modal-historico";
+    modal.style.position = "fixed";
+    modal.style.top = "0";
+    modal.style.left = "0";
+    modal.style.width = "100vw";
+    modal.style.height = "100vh";
+    modal.style.background = "rgba(0,0,0,0.55)";
+    modal.style.zIndex = 10000;
+    modal.style.display = "flex";
+    modal.style.alignItems = "center";
+    modal.style.justifyContent = "center";
+    const box = document.createElement("div");
+    box.style.background = "#181f2e";
+    box.style.borderRadius = "12px";
+    box.style.padding = "24px 18px";
+    box.style.maxWidth = "95vw";
+    box.style.width = "420px";
+    box.style.maxHeight = "80vh";
+    box.style.overflowY = "auto";
+    box.style.boxShadow = "0 8px 32px #0008";
+    const title = document.createElement("h2");
+    title.textContent = "Histórico dos últimos 15 dias";
+    title.style.marginTop = "0";
+    title.style.fontSize = "1.1rem";
+    title.style.color = "#fff";
+    box.appendChild(title);
+    if (hist.length === 0) {
+      const empty = document.createElement("div");
+      empty.textContent = "Nenhum resultado salvo.";
+      box.appendChild(empty);
+    } else {
+      hist.sort((a, b) => (b.date || 0) - (a.date || 0));
+      hist.forEach((item, idx) => {
+        const row = document.createElement("div");
+        row.style.display = "flex";
+        row.style.justifyContent = "space-between";
+        row.style.alignItems = "center";
+        row.style.padding = "8px 0";
+        row.style.borderBottom = "1px solid #222a";
+        const info = document.createElement("div");
+        info.style.flex = "1";
+        const d = new Date(item.date);
+        info.textContent = `${d.toLocaleDateString()} ${d.toLocaleTimeString()} - ${item.deviceModel || item.platform}`;
+        row.appendChild(info);
+        const btn = document.createElement("button");
+        btn.textContent = "Restaurar";
+        btn.className = "btn";
+        btn.style.marginLeft = "10px";
+        btn.onclick = () => {
+          restore(item);
+          showPanel = false;
+          resultadoCalculado = false;
+          btnSalvar.disabled = true;
+          btnSalvar.onclick = null;
+          document.body.removeChild(modal);
+          toast("Configuração restaurada. Clique em Calcular para ver o resultado.", "ok");
+          render();
+        };
+        // Botão PDF ao lado do restaurar
+        const btnPdf = document.createElement("button");
+        btnPdf.textContent = "PDF";
+        btnPdf.className = "btn ghost";
+        btnPdf.style.marginLeft = "6px";
+        btnPdf.onclick = () => {
+          restore(item);
+          showPanel = true;
+          resultadoCalculado = true;
+          render();
+          setTimeout(() => gerarPDF(), 200);
+        };
+        row.appendChild(btn);
+        row.appendChild(btnPdf);
+        box.appendChild(row);
+      });
+    }
+    const fechar = document.createElement("button");
+    fechar.textContent = "Fechar";
+    fechar.className = "btn ghost";
+    fechar.style.marginTop = "18px";
+    fechar.onclick = () => document.body.removeChild(modal);
+    box.appendChild(fechar);
+    modal.appendChild(box);
+    document.body.appendChild(modal);
   });
 
-  btnLimpar.addEventListener("click", () => {
-    restore({
-      platform: "", deviceModel: "", osVersion: "", netSpeed: "",
-      cam: "", ads: "", livre: "", gyro: "", gyroAds: ""
-    });
-    try { localStorage.removeItem(STORAGE_KEY); } catch {}
-    showPanel = false; // esconde painel até carregar novamente
-    toast("Campos limpos.", "ok");
+  btnCalcular.addEventListener("click", () => {
+    // Só calcula se campos obrigatórios estiverem preenchidos
+    if (!camposSensibilidadeValidos()) {
+      toast("Preencha todos os campos de sensibilidade corretamente.", "err");
+      return;
+    }
+    showPanel = true;
+    resultadoCalculado = true;
+    atualizarEstadoBotoes();
     render();
   });
 
   // ====== Init ======
   setStep(1);
-  showPanel = false;       // oculta o painel até o clique em "Carregar"
+  showPanel = false;       // oculta o painel até o clique em "Calcular"
+  btnSalvar.disabled = true;
+  btnCarregar.disabled = true;
+  atualizarEstadoBotoes();
   render();
 });
