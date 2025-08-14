@@ -235,11 +235,1081 @@ body {
   animation: fade-update 0.5s ease-out;
 }
 
-.nav {
+/* Modal de confirmação */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.modal-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  max-width: 450px;
+  width: 90%;
+  padding: 0;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  transform: translateY(20px) scale(0.95);
+  transition: all 0.3s ease;
+}
+
+.modal-overlay.show .modal {
+  transform: translateY(0) scale(1);
+}
+
+.modal-header {
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  text-align: center;
+}
+
+.modal-body {
+  padding: 20px 24px;
+}
+
+.modal-message {
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  text-align: center;
+  margin: 0;
+}
+
+.modal-actions {
+  padding: 16px 24px 24px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.modal-actions .btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  min-width: 100px;
+  flex: 1;
+  max-width: 120px;
+}
+
+.modal-actions .btn.confirm {
+  background: linear-gradient(180deg, #2196F3, #1976D2);
+  color: white;
+  border: 2px solid #2196F3;
+}
+
+.modal-actions .btn.confirm:hover {
+  background: linear-gradient(180deg, #1976D2, #1565C0);
+  border-color: #1976D2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+}
+
+.modal-actions .btn.cancel {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 2px solid var(--border);
+}
+
+.modal-actions .btn.cancel:hover {
+  background: var(--surface-variant);
+  color: var(--text);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(91, 140, 255, 0.2);
+}
+
+/* Modal de configuração duplicada */
+.duplicate-config-modal {
+  max-width: 520px;
+  width: 95%;
+}
+
+.duplicate-config-modal .modal-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 10px 0 6px;
+  padding: 24px 24px 16px;
+}
+
+.duplicate-config-modal .modal-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.duplicate-info {
+  padding: 4px 0;
+}
+
+.duplicate-message {
+  font-size: 16px;
+  color: var(--text);
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.saved-config-details {
+  background: rgba(91, 140, 255, 0.08);
+  border: 1px solid rgba(91, 140, 255, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.saved-config-details > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.saved-config-details > div:last-child {
+  margin-bottom: 0;
+}
+
+.saved-config-details .label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.saved-config-details .value {
+  font-size: 15px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.saved-config-details .value.highlight {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.saved-config-details .value.small {
+  font-size: 14px;
+  line-height: 1.4;
+  opacity: 0.9;
+}
+
+.duplicate-question {
+  font-size: 15px;
+  color: var(--text);
+  margin: 20px 0 0 0;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.duplicate-question strong {
+  color: var(--accent);
+}
+
+/* Ações do modal de configuração duplicada */
+.duplicate-actions {
+  display: flex;
+  gap: 16px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, rgba(91, 140, 255, 0.02), rgba(91, 140, 255, 0.05));
+  border-top: 1px solid rgba(91, 140, 255, 0.1);
+}
+
+.duplicate-actions .btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: 2px solid;
+  position: relative;
+  overflow: hidden;
+  min-height: 48px; /* Reduzido de 60px para 48px */
+  max-width: 200px; /* Limita largura máxima */
+}
+
+.duplicate-actions .btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.duplicate-actions .btn:hover::before {
+  left: 100%;
+}
+
+.btn-icon {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.btn-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  flex: 1;
+}
+
+.btn-label {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.btn-desc {
+  font-size: 12px;
+  opacity: 0.85;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* Botão Sobrescrever */
+.overwrite-btn {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  border-color: #ff9800;
+  color: white;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.25);
+}
+
+.overwrite-btn:hover {
+  background: linear-gradient(135deg, #f57c00 0%, #ef6c00 100%);
+  border-color: #f57c00;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 152, 0, 0.4);
+}
+
+.overwrite-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+}
+
+/* Botão Manter */
+.keep-btn {
+  background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+  border-color: #4CAF50;
+  color: white;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.25);
+}
+
+.keep-btn:hover {
+  background: linear-gradient(135deg, #388E3C 0%, #2E7D32 100%);
+  border-color: #388E3C;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+}
+
+.keep-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+/* Animação de pulso para highlight */
+@keyframes button-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.duplicate-actions .btn:focus {
+  outline: none;
+  animation: button-pulse 0.3s ease;
+}
+
+/* Touch-friendly e acessibilidade mobile */
+@media (max-width: 640px) {
+  .duplicate-actions {
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px 16px 24px;
+    background: linear-gradient(135deg, rgba(91, 140, 255, 0.03), rgba(91, 140, 255, 0.08));
+  }
+  
+  .duplicate-actions .btn {
+    min-height: 56px; /* Reduzido de 64px para 56px - mantém acessibilidade */
+    padding: 14px 18px; /* Reduzido padding */
+    border-radius: 12px; /* Reduzido de 16px para 12px */
+    font-size: 14px; /* Reduzido de 15px para 14px */
+    gap: 10px; /* Reduzido de 14px para 10px */
+    position: relative;
+    -webkit-tap-highlight-color: transparent; /* Remove highlight azul no iOS */
+    touch-action: manipulation; /* Otimiza para toque */
+  }
+  
+  /* Feedback tátil melhorado */
+  .duplicate-actions .btn:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+  
+  .btn-icon {
+    font-size: 22px; /* Ícones maiores para melhor visibilidade */
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  
+  .btn-content {
+    gap: 4px; /* Mais espaço entre label e descrição */
+  }
+  
+  .btn-label {
+    font-size: 16px; /* Texto maior para legibilidade */
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  
+  .btn-desc {
+    font-size: 13px; /* Descrição mais legível */
+    opacity: 0.9;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  
+  /* Sombras otimizadas para mobile */
+  .overwrite-btn {
+    box-shadow: 0 6px 16px rgba(255, 152, 0, 0.3);
+  }
+  
+  .overwrite-btn:active {
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4);
+  }
+  
+  .keep-btn {
+    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.3);
+  }
+  
+  .keep-btn:active {
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
+  }
+}
+
+/* Extra otimizações para telas muito pequenas */
+@media (max-width: 480px) {
+  .duplicate-config-modal {
+    width: calc(100% - 16px);
+    margin: 8px;
+    max-height: 92vh;
+  }
+  
+  .duplicate-actions {
+    padding: 18px 14px 22px;
+    gap: 14px;
+  }
+  
+  .duplicate-actions .btn {
+    min-height: 60px; /* Reduzido de 68px para 60px */
+    padding: 16px 18px; /* Reduzido padding */
+    border-radius: 14px; /* Reduzido de 18px para 14px */
+  }
+  
+  .btn-icon {
+    font-size: 22px; /* Reduzido de 24px para 22px */
+  }
+  
+  .btn-label {
+    font-size: 16px; /* Reduzido de 17px para 16px */
+    font-weight: 700; /* Reduzido de 800 para 700 */
+  }
+  
+  .btn-desc {
+    font-size: 14px; /* Descrição bem legível */
+    opacity: 0.95;
+    font-weight: 600; /* Mais peso para contraste */
+  }
+}
+
+/* Melhorias de acessibilidade universal */
+@media (prefers-reduced-motion: reduce) {
+  .duplicate-actions .btn::before {
+    display: none; /* Remove animação shimmer para usuários sensíveis */
+  }
+  
+  .duplicate-actions .btn {
+    transition: none; /* Remove transições */
+  }
+  
+  .duplicate-actions .btn:focus {
+    animation: none; /* Remove animação de foco */
+    outline: 3px solid var(--accent); /* Foco visual alternativo */
+    outline-offset: 2px;
+  }
+}
+
+/* Modais com comportamento restrito - indicação visual */
+.modal-overlay[aria-modal="true"] .modal::before,
+.modal-overlay[aria-modal="true"] .duplicate-config-modal::before {
+  content: '🔒';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 12px;
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Alto contraste para melhor acessibilidade */
+@media (prefers-contrast: high) {
+  .overwrite-btn {
+    background: #ff6f00; /* Cor mais contrastante */
+    border-color: #e65100;
+    border-width: 3px;
+  }
+  
+  .keep-btn {
+    background: #2e7d32; /* Cor mais contrastante */
+    border-color: #1b5e20;
+    border-width: 3px;
+  }
+
+  .history-modal .close-btn {
+    border-width: 2px;
+    border-color: rgba(239, 68, 68, 0.7);
+    background: rgba(239, 68, 68, 0.1);
+  }
+
+  .history-modal .close-btn:hover {
+    border-color: rgba(239, 68, 68, 0.9);
+    background: rgba(239, 68, 68, 0.15);
+  }
+}
+
+/* Redução de movimento para usuários sensíveis */
+@media (prefers-reduced-motion: reduce) {
+  .history-modal .close-btn {
+    transition: none;
+  }
+  
+  .history-modal .close-btn:hover {
+    transform: none;
+  }
+  
+  .history-modal .close-btn:active {
+    transform: none;
+  }
+
+  .history-modal .close-btn:focus {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* Remove animações de feedback para modais restritos */
+  .modal-actions .btn::after,
+  .duplicate-actions .btn::after {
+    animation: none;
+    opacity: 0.8;
+  }
+
+  .modal::animation,
+  .duplicate-config-modal::animation,
+  .history-modal::animation {
+    animation: none !important;
+  }
+}
+
+/* Orientação landscape em mobile */
+@media (max-width: 640px) and (orientation: landscape) and (max-height: 480px) {
+  .duplicate-actions {
+    flex-direction: row; /* Volta para lado a lado em landscape */
+    gap: 12px;
+    padding: 16px;
+  }
+  
+  .duplicate-actions .btn {
+    min-height: 56px; /* Altura reduzida para landscape */
+    padding: 14px 16px;
+  }
+  
+  .btn-icon {
+    font-size: 20px;
+  }
+  
+  .btn-label {
+    font-size: 15px;
+  }
+  
+  .btn-desc {
+    font-size: 12px;
+  }
+}
+
+/* Estados de foco melhorados para navegação por teclado */
+.duplicate-actions .btn:focus-visible {
+  outline: 3px solid rgba(91, 140, 255, 0.8);
+  outline-offset: 3px;
+  z-index: 10;
+}
+
+/* Feedback visual para dispositivos que suportam hover */
+@media (hover: hover) and (pointer: fine) {
+  .duplicate-actions .btn:hover {
+    transform: translateY(-1px);
+  }
+}
+
+/* Para dispositivos apenas touch (remove hover effects) */
+@media (hover: none) {
+  .duplicate-actions .btn:hover {
+    transform: none;
+    box-shadow: inherit;
+  }
+  
+  .duplicate-actions .btn::before {
+    display: none; /* Remove efeito shimmer em touch-only */
+  }
+}
+
+/* Responsive para ações duplicadas - OLD VERSION */
+
+.modal-actions .btn.warning {
+  background: linear-gradient(180deg, #ff9800, #f57c00);
+  border-color: #ff9800;
+  color: white;
+}
+
+.modal-actions .btn.warning:hover {
+  background: linear-gradient(180deg, #f57c00, #ef6c00);
+  border-color: #f57c00;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+}
+
+/* Modal de histórico de sensibilidades */
+.history-modal {
+  max-width: 680px;
+  width: 95%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.history-count {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  font-weight: 500;
+}
+
+.clear-all-btn {
+  font-size: 13px;
+  padding: 8px 16px;
+}
+
+.history-modal .modal-body {
+  flex: 1;
+  overflow: hidden;
+  padding: 0;
+}
+
+.history-list {
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 0 4px;
+}
+
+.history-item {
+  background: var(--surface-variant);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 16px 20px;
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.history-item:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(91, 140, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.history-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid rgba(91, 140, 255, 0.1);
+}
+
+.item-date {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.date-primary {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.date-time {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.item-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.item-badge.android {
+  background: linear-gradient(135deg, #4CAF50, #388E3C);
+  color: white;
+}
+
+.item-badge.ios {
+  background: linear-gradient(135deg, #2196F3, #1976D2);
+  color: white;
+}
+
+.history-item-content {
+  padding: 0 20px 16px;
+}
+
+.device-info {
+  margin-bottom: 16px;
+}
+
+.device-name {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.device-details {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.sensitivity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.sens-item {
+  background: rgba(91, 140, 255, 0.06);
+  border: 1px solid rgba(91, 140, 255, 0.15);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background-color 0.2s ease;
+}
+
+.sens-item:hover {
+  background: rgba(91, 140, 255, 0.1);
+}
+
+.sens-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.sens-value {
+  font-size: 14px;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.history-item-actions {
+  display: flex;
+  gap: 8px;
+  padding: 16px 20px;
+  border-top: 1px solid rgba(91, 140, 255, 0.1);
+  background: rgba(91, 140, 255, 0.03);
+  border-radius: 0 0 12px 12px;
+}
+
+.history-item-actions .btn {
+  flex: 1;
+  font-size: 13px;
+  padding: 10px 16px;
+}
+
+.history-modal .modal-actions {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-variant);
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Botão FECHAR otimizado - agora com destaque primary */
+.history-modal .close-btn {
+  min-width: 120px;
+  max-width: 160px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(91, 140, 255, 0.2), rgba(91, 140, 255, 0.1));
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(91, 140, 255, 0.3);
+}
+
+.history-modal .close-btn:hover {
+  background: linear-gradient(180deg, rgba(91, 140, 255, 0.3), rgba(91, 140, 255, 0.15));
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(91, 140, 255, 0.4);
+}
+
+.history-modal .close-btn:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 8px rgba(91, 140, 255, 0.3);
+}
+
+/* Tooltips informativos para ações - modais restritos */
+.history-item-actions .btn[title],
+.clear-all-btn[title],
+.modal-actions .btn[title],
+.duplicate-actions .btn[title] {
+  position: relative;
+}
+
+.history-item-actions .btn[title]:hover::before,
+.clear-all-btn[title]:hover::before,
+.modal-actions .btn[title]:hover::before,
+.duplicate-actions .btn[title]:hover::before {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  opacity: 0;
+  animation: tooltip-show 0.3s ease forwards;
+  pointer-events: none;
+  margin-bottom: 5px;
+}
+
+/* Indicação visual sutil de que são os únicos botões funcionais */
+.modal-actions .btn,
+.duplicate-actions .btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-actions .btn::after,
+.duplicate-actions .btn::after {
+  content: '●';
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 8px;
+  opacity: 0.7;
+  color: var(--accent);
+  animation: pulse-dot 2s infinite;
+  pointer-events: none;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+@keyframes tooltip-show {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Animação de shake para feedback visual */
+@keyframes modal-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+/* Animação de fade-out para remoção de itens */
+@keyframes fade-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* Botões de ação do histórico - permanecem abertos */
+.history-item-actions .btn,
+.clear-all-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Removido indicador ↗️ pois modal não fecha mais automaticamente */
+
+/* Animação de feedback ao clicar */
+.history-item-actions .btn:active,
+.clear-all-btn:active {
+  transform: scale(0.96);
+  transition: transform 0.1s ease;
+}
+
+/* Scrollbar personalizada para lista de histórico */
+.history-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.history-list::-webkit-scrollbar-track {
+  background: rgba(91, 140, 255, 0.05);
+  border-radius: 3px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+  background: rgba(91, 140, 255, 0.3);
+  border-radius: 3px;
+}
+
+.history-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(91, 140, 255, 0.5);
+}
+
+/* Responsive para modal de histórico */
+@media (max-width: 640px) {
+  .history-modal {
+    width: calc(100% - 20px);
+    margin: 10px;
+    max-height: 90vh;
+  }
+  
+  .history-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 16px 20px;
+  }
+  
+  .clear-all-btn {
+    align-self: stretch;
+    width: 100%;
+  }
+  
+  .history-item {
+    margin: 12px 16px;
+  }
+  
+  .history-item-header {
+    padding: 12px 16px 8px;
+  }
+  
+  .history-item-content {
+    padding: 0 16px 12px;
+  }
+  
+  .sensitivity-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  
+  .sens-item {
+    padding: 6px 8px;
+  }
+  
+  .sens-label {
+    font-size: 11px;
+  }
+  
+  .sens-value {
+    font-size: 13px;
+  }
+  
+  .history-item-actions {
+    padding: 12px 16px;
+    flex-direction: column;
+  }
+  
+  .history-item-actions .btn {
+    flex: none;
+  }
+
+  /* Otimizações do botão FECHAR em mobile */
+  .history-modal .modal-actions {
+    padding: 16px 16px 18px;
+    gap: 0;
+  }
+
+  .history-modal .close-btn {
+    min-width: 110px;
+    max-width: 150px;
+    padding: 14px 20px;
+    font-size: 14px;
+    min-height: 48px; /* Acessibilidade touch */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    font-weight: 700;
+  }
+
+  .history-modal .close-btn:active {
+    transform: scale(0.96);
+    transition: transform 0.1s ease;
+  }
+}
+
+/* Responsive para modal duplicado */
+@media (max-width: 480px) {
+  .duplicate-config-modal {
+    width: calc(100% - 20px);
+    margin: 10px;
+  }
+  
+  .saved-config-details {
+    padding: 12px;
+  }
+  
+  .saved-config-details .value.small {
+    font-size: 13px;
+  }
+  
+  .duplicate-config-modal .modal-header {
+    padding: 20px 16px 12px;
+  }
+
+  /* Otimizações extras do botão FECHAR para telas pequenas */
+  .history-modal .close-btn {
+    min-width: 100px;
+    max-width: 130px;
+    padding: 12px 18px;
+    font-size: 13px;
+    border-radius: 6px;
+    gap: 6px;
+    font-weight: 700;
+  }
+
+  /* Otimizações dos tooltips em mobile */
+  .history-item-actions .btn[title]:hover::before,
+  .clear-all-btn[title]:hover::before,
+  .modal-actions .btn[title]:hover::before,
+  .duplicate-actions .btn[title]:hover::before {
+    display: none; /* Remove tooltips em touch devices */
+  }
+
+  /* Feedback tátil otimizado para mobile */
+  .history-item-actions .btn:active,
+  .clear-all-btn:active,
+  .modal-actions .btn:active,
+  .duplicate-actions .btn:active {
+    transform: scale(0.94);
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Responsive ajustes para modal */
+@media (max-width: 480px) {
+  .modal {
+    margin: 20px;
+    max-width: none;
+    width: calc(100% - 40px);
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+  
+  .modal-actions .btn {
+    max-width: none;
+  }
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 32px;
+  padding: 0 4px;
 }
 .nav .spacer { flex: 1; }
 

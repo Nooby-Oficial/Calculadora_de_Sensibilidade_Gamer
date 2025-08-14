@@ -21,6 +21,9 @@ document.addEventListener("DOMContentLoaded", () => {
     LIMITS: {
       STANDARD: { min: 1, max: 300 },
       GYRO: { min: 1, max: 400 }
+    },
+    UI: {
+      MODAL_EDUCATION_SHOWN: false // Flag para educação sobre modais restritos
     }
   };
 
@@ -493,6 +496,22 @@ document.addEventListener("DOMContentLoaded", () => {
   let showPanel = false;
   let resultadoCalculado = false;
   
+  // ====== Sistema de Prevenção de Perda de Dados ======
+  
+  // Verifica se há dados não salvos (qualquer campo preenchido)
+  function hasUnsavedData() {
+    const data = snapshot();
+    return data.platform || 
+           data.deviceModel || 
+           data.osVersion || 
+           data.netSpeed || 
+           data.cam || 
+           data.ads || 
+           data.livre || 
+           data.gyro || 
+           data.gyroAds;
+  }
+  
   // ====== Validações de campos e estado ======
   function camposSensibilidadeValidos() {
     const campos = [inCam, inAds, inLivre, inGyro, inGyroAds];
@@ -597,65 +616,363 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // ====== UI helpers ======
+  // Modal especializado para confirmação de sobrescrita
+  const showDuplicateConfigModal = (duplicateItem, onConfirm) => {
+    // Remove modal existente se houver
+    const existingModal = document.querySelector('.modal-overlay');
+    if (existingModal) {
+      existingModal.remove();
+    }
+
+    // Formata informações da configuração duplicada
+    const date = new Date(duplicateItem.date);
+    const dateStr = DateFormatter.format(date).completo;
+    const deviceInfo = `${duplicateItem.platform === 'android' ? '🤖' : '📱'} ${duplicateItem.deviceModel || 'Dispositivo não especificado'}`;
+    const osInfo = duplicateItem.osVersion ? ` • ${duplicateItem.osVersion}` : '';
+    const networkInfo = duplicateItem.netSpeed ? ` • ${duplicateItem.netSpeed}` : '';
+    
+    const sensibilityInfo = [
+      `📷 Câmera: ${duplicateItem.cam}`,
+      `🎯 ADS: ${duplicateItem.ads}`, 
+      `🔄 Livre: ${duplicateItem.livre}`,
+      `🌀 Gyro: ${duplicateItem.gyro}`,
+      `🎯 Gyro ADS: ${duplicateItem.gyroAds}`
+    ].join(' • ');
+
+    // Cria o modal overlay
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+    modalOverlay.setAttribute('role', 'dialog');
+    modalOverlay.setAttribute('aria-modal', 'true');
+    modalOverlay.setAttribute('aria-labelledby', 'duplicate-modal-title');
+    modalOverlay.setAttribute('aria-describedby', 'duplicate-modal-description');
+    
+    // Cria o conteúdo do modal
+    modalOverlay.innerHTML = `
+      <div class="modal duplicate-config-modal">
+        <div class="modal-header">
+          <div class="modal-icon" aria-hidden="true">⚠️</div>
+          <h3 class="modal-title" id="duplicate-modal-title">Configuração Duplicada</h3>
+        </div>
+        <div class="modal-body">
+          <div class="duplicate-info" id="duplicate-modal-description">
+            <p class="duplicate-message">
+              Uma configuração <strong>idêntica</strong> já foi salva anteriormente:
+            </p>
+            
+            <div class="saved-config-details">
+              <div class="config-date">
+                <span class="label">📅 Data de Salvamento:</span>
+                <span class="value highlight">${dateStr}</span>
+              </div>
+              
+              <div class="config-device">
+                <span class="label">🔧 Dispositivo:</span>
+                <span class="value">${deviceInfo}${osInfo}${networkInfo}</span>
+              </div>
+              
+              <div class="config-sensitivity">
+                <span class="label">⚙️ Sensibilidades:</span>
+                <span class="value small">${sensibilityInfo}</span>
+              </div>
+            </div>
+            
+            <p class="duplicate-question">
+              Deseja <strong>sobrescrever</strong> com a data/hora atual ou manter a configuração existente?
+            </p>
+          </div>
+        </div>
+        <div class="modal-actions duplicate-actions">
+          <button class="btn overwrite-btn" 
+                  aria-label="Sobrescrever configuração existente - única forma de decidir" 
+                  role="button"
+                  tabindex="0"
+                  title="Clique para sobrescrever (ESC e clique fora não funcionam)">
+            <span class="btn-icon" aria-hidden="true">🔄</span>
+            <span class="btn-content">
+              <span class="btn-label">Sobrescrever</span>
+              <span class="btn-desc">Atualizar com horário atual</span>
+            </span>
+          </button>
+          <button class="btn keep-btn" 
+                  aria-label="Manter configuração existente - única forma de decidir" 
+                  role="button"
+                  tabindex="0"
+                  title="Clique para manter (ESC e clique fora não funcionam)">
+            <span class="btn-icon" aria-hidden="true">✅</span>
+            <span class="btn-content">
+              <span class="btn-label">Manter Existente</span>
+              <span class="btn-desc">Preservar configuração salva</span>
+            </span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modalOverlay);
+
+    // Mostra o modal com animação
+    setTimeout(() => {
+      modalOverlay.classList.add('show');
+    }, 10);
+
+    // Event listeners com feedback háptico e acessibilidade
+    const confirmBtn = modalOverlay.querySelector('.overwrite-btn');
+    const cancelBtn = modalOverlay.querySelector('.keep-btn');
+
+    // Função para feedback háptico (se disponível)
+    function hapticFeedback(type = 'light') {
+      if (navigator.vibrate) {
+        // Padrões de vibração diferenciados
+        const patterns = {
+          light: [10],
+          medium: [15],
+          success: [10, 50, 10],
+          warning: [20, 100, 20]
+        };
+        navigator.vibrate(patterns[type] || patterns.light);
+      }
+    }
+
+    // Função para anunciar para leitores de tela
+    function announceAction(message) {
+      const announcement = document.createElement('div');
+      announcement.setAttribute('aria-live', 'polite');
+      announcement.setAttribute('aria-atomic', 'true');
+      announcement.style.position = 'absolute';
+      announcement.style.left = '-10000px';
+      announcement.style.width = '1px';
+      announcement.style.height = '1px';
+      announcement.style.overflow = 'hidden';
+      announcement.textContent = message;
+      document.body.appendChild(announcement);
+      
+      setTimeout(() => {
+        document.body.removeChild(announcement);
+      }, 1000);
+    }
+
+    function closeModal() {
+      modalOverlay.classList.remove('show');
+      setTimeout(() => {
+        modalOverlay.remove();
+        // Remove event listener quando modal for fechado  
+        document.removeEventListener('keydown', handleEscape);
+      }, 300);
+    }
+
+    // Event listeners aprimorados
+    confirmBtn.addEventListener('click', () => {
+      hapticFeedback('warning');
+      announceAction('Configuração será sobrescrita');
+      closeModal();
+      if (onConfirm) onConfirm();
+    });
+
+    // Feedback visual e sonoro para botão sobrescrever
+    confirmBtn.addEventListener('touchstart', () => {
+      hapticFeedback('light');
+    }, { passive: true });
+
+    cancelBtn.addEventListener('click', () => {
+      hapticFeedback('light');
+      announceAction('Configuração mantida');
+      closeModal();
+    });
+
+    // Feedback visual para botão manter
+    cancelBtn.addEventListener('touchstart', () => {
+      hapticFeedback('light');
+    }, { passive: true });
+
+    // Navegação por teclado melhorada
+    function handleKeyboardNavigation(e) {
+      if (e.key === 'Tab') {
+        // Garante que o foco permaneça dentro do modal
+        const focusableElements = modalOverlay.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        if (document.activeElement === confirmBtn) {
+          confirmBtn.click();
+        } else if (document.activeElement === cancelBtn) {
+          cancelBtn.click();
+        }
+      }
+    }
+
+    modalOverlay.addEventListener('keydown', handleKeyboardNavigation);
+
+    // Define foco inicial no botão mais seguro (Manter)
+    setTimeout(() => {
+      cancelBtn.focus();
+    }, 100);
+
+    // Remover event listener duplicado
+    // cancelBtn.addEventListener('click', closeModal); // Já tem um acima
+    
+    // Clique no overlay não fecha mais - apenas feedback visual
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) {
+        // Feedback visual de que deve usar botões específicos
+        const modal = modalOverlay.querySelector('.duplicate-config-modal');
+        modal.style.animation = 'modal-shake 0.3s ease';
+        setTimeout(() => {
+          modal.style.animation = '';
+        }, 300);
+        
+        // Feedback tátil sutil
+        if (navigator.vibrate) {
+          navigator.vibrate(30);
+        }
+        
+        // Toast informativo
+        toast("💡 Use SOBRESCREVER ou MANTER EXISTENTE para decidir.", "info");
+      }
+    });
+
+    // Tecla ESC não fecha mais - apenas feedback visual
+    function handleEscape(e) {
+      if (e.key === 'Escape') {
+        // Feedback visual de que deve usar botões específicos
+        const modal = modalOverlay.querySelector('.duplicate-config-modal');
+        modal.style.animation = 'modal-shake 0.3s ease';
+        setTimeout(() => {
+          modal.style.animation = '';
+        }, 300);
+        
+        // Feedback tátil sutil
+        if (navigator.vibrate) {
+          navigator.vibrate(30);
+        }
+        
+        // Toast informativo
+        if (!CONFIG.UI.MODAL_EDUCATION_SHOWN) {
+          toast("💡 NOVO: Use SOBRESCREVER ou MANTER EXISTENTE para decidir. ESC e clique fora foram desabilitados.", "info");
+          CONFIG.UI.MODAL_EDUCATION_SHOWN = true;
+        } else {
+          toast("💡 Use SOBRESCREVER ou MANTER EXISTENTE para decidir.", "info");
+        }
+      }
+    }
+    document.addEventListener('keydown', handleEscape);
+  };
+
   // Modal de confirmação
   const showConfirmModal = (title, message, onConfirm) => {
-    const modal = document.createElement("div");
-    modal.className = "modal";
-    modal.style.position = "fixed";
-    modal.style.top = "0";
-    modal.style.left = "0";
-    modal.style.width = "100vw";
-    modal.style.height = "100vh";
-    modal.style.background = "rgba(0,0,0,0.75)";
-    modal.style.display = "flex";
-    modal.style.alignItems = "center";
-    modal.style.justifyContent = "center";
-    modal.style.zIndex = "10000"; // Maior que o modal de histórico
+    // Remove modal existente se houver
+    const existingModal = document.querySelector('.modal-overlay');
+    if (existingModal) {
+      existingModal.remove();
+    }
 
-    const box = document.createElement("div");
-    box.className = "modal-content";
-    box.style.background = "var(--surface)";
-    box.style.padding = "24px";
-    box.style.borderRadius = "12px";
-    box.style.maxWidth = "90vw";
-    box.style.width = "400px";
-    box.style.boxShadow = "var(--shadow)";
+    // Cria o modal overlay
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+    
+    // Cria o conteúdo do modal
+    modalOverlay.innerHTML = `
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title">${title}</h3>
+        </div>
+        <div class="modal-body">
+          <p class="modal-message">${message}</p>
+        </div>
+        <div class="modal-actions">
+          <button class="btn confirm" 
+                  title="Clique SIM para confirmar (ESC e clique fora não funcionam)"
+                  aria-label="Confirmar ação - única forma de decidir">Sim</button>
+          <button class="btn cancel"
+                  title="Clique NÃO para cancelar (ESC e clique fora não funcionam)"
+                  aria-label="Cancelar ação - única forma de decidir">Não</button>
+        </div>
+      </div>
+    `;
 
-    const titleEl = document.createElement("h3");
-    titleEl.textContent = title;
-    titleEl.style.margin = "0 0 16px";
-    titleEl.style.color = "#dbe6ff";
-    box.appendChild(titleEl);
+    document.body.appendChild(modalOverlay);
 
-    const messageEl = document.createElement("p");
-    messageEl.style.margin = "0 0 24px";
-    messageEl.style.lineHeight = "1.5";
-    messageEl.textContent = message;
-    box.appendChild(messageEl);
+    // Mostra o modal com animação
+    setTimeout(() => {
+      modalOverlay.classList.add('show');
+    }, 10);
 
-    const actions = document.createElement("div");
-    actions.style.display = "flex";
-    actions.style.gap = "12px";
-    actions.style.justifyContent = "flex-end";
+    // Event listeners
+    const confirmBtn = modalOverlay.querySelector('.btn.confirm');
+    const cancelBtn = modalOverlay.querySelector('.btn.cancel');
 
-    const btnConfirm = document.createElement("button");
-    btnConfirm.className = "btn danger";
-    btnConfirm.textContent = "Sim, confirmar";
-    btnConfirm.onclick = () => {
-      document.body.removeChild(modal);
-      onConfirm();
-    };
-    actions.appendChild(btnConfirm);
+    function closeModal() {
+      modalOverlay.classList.remove('show');
+      setTimeout(() => {
+        modalOverlay.remove();
+        // Remove event listener quando modal for fechado
+        document.removeEventListener('keydown', handleEscape);
+      }, 300);
+    }
 
-    const btnCancel = document.createElement("button");
-    btnCancel.className = "btn ghost";
-    btnCancel.textContent = "Não, cancelar";
-    btnCancel.onclick = () => document.body.removeChild(modal);
-    actions.appendChild(btnCancel);
+    confirmBtn.addEventListener('click', () => {
+      closeModal();
+      if (onConfirm) onConfirm();
+    });
 
-    box.appendChild(actions);
-    modal.appendChild(box);
-    document.body.appendChild(modal);
+    cancelBtn.addEventListener('click', closeModal);
+    
+    // Clique no overlay não fecha mais - apenas feedback visual
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) {
+        // Feedback visual de que deve usar botões específicos
+        const modal = modalOverlay.querySelector('.modal');
+        modal.style.animation = 'modal-shake 0.3s ease';
+        setTimeout(() => {
+          modal.style.animation = '';
+        }, 300);
+        
+        // Feedback tátil sutil
+        if (navigator.vibrate) {
+          navigator.vibrate(30);
+        }
+        
+        // Toast informativo
+        toast("💡 Use os botões SIM ou NÃO para responder.", "info");
+      }
+    });
+
+    // Tecla ESC não fecha mais - apenas feedback visual
+    function handleEscape(e) {
+      if (e.key === 'Escape') {
+        // Feedback visual de que deve usar botões específicos
+        const modal = modalOverlay.querySelector('.modal');
+        modal.style.animation = 'modal-shake 0.3s ease';
+        setTimeout(() => {
+          modal.style.animation = '';
+        }, 300);
+        
+        // Feedback tátil sutil
+        if (navigator.vibrate) {
+          navigator.vibrate(30);
+        }
+        
+        // Toast informativo
+        if (!CONFIG.UI.MODAL_EDUCATION_SHOWN) {
+          toast("💡 NOVO: Use os botões SIM ou NÃO para responder. ESC e clique fora foram desabilitados para melhor experiência.", "info");
+          CONFIG.UI.MODAL_EDUCATION_SHOWN = true;
+        } else {
+          toast("💡 Use os botões SIM ou NÃO para responder.", "info");
+        }
+      }
+    }
+    document.addEventListener('keydown', handleEscape);
   };
 
   const setStep = (n) => {
@@ -948,71 +1265,17 @@ document.addEventListener("DOMContentLoaded", () => {
         // Adiciona ao histórico
         hist.push({ ...snap, date: now });
         localStorage.setItem(CONFIG.STORAGE.HISTORY_KEY, JSON.stringify(hist));
-        toast("Configuração salva com sucesso!", "ok");
+        
+        // Mensagem diferenciada para sobrescrita ou novo salvamento
+        const message = sobrescrever ? 
+          "🔄 Configuração sobrescrita com sucesso!" : 
+          "✅ Configuração salva com sucesso!";
+        toast(message, "ok");
       } else {
-        // Mostra modal de confirmação
-        const modal = document.createElement("div");
-        modal.className = "modal";
-        modal.style.position = "fixed";
-        modal.style.top = "0";
-        modal.style.left = "0";
-        modal.style.width = "100vw";
-        modal.style.height = "100vh";
-        modal.style.background = "rgba(0,0,0,0.75)";
-        modal.style.display = "flex";
-        modal.style.alignItems = "center";
-        modal.style.justifyContent = "center";
-        modal.style.zIndex = "9999";
-
-        const box = document.createElement("div");
-        box.className = "modal-content";
-        box.style.background = "var(--surface)";
-        box.style.padding = "24px";
-        box.style.borderRadius = "12px";
-        box.style.maxWidth = "90vw";
-        box.style.width = "460px";
-        box.style.boxShadow = "var(--shadow)";
-
-        const title = document.createElement("h3");
-        title.textContent = "Configuração já existe";
-        title.style.margin = "0 0 12px";
-        title.style.color = "#dbe6ff";
-        box.appendChild(title);
-
-        const message = document.createElement("p");
-        message.style.margin = "0 0 20px";
-        message.style.lineHeight = "1.5";
-        message.innerHTML = `
-          Uma configuração idêntica foi salva em <br>
-          <strong style="color: var(--accent)">${DateFormatter.format(igual.date).completo}</strong>
-          <br><br>
-          Deseja sobrescrever com o horário atual?
-        `;
-        box.appendChild(message);
-
-        const actions = document.createElement("div");
-        actions.style.display = "flex";
-        actions.style.gap = "12px";
-        actions.style.justifyContent = "flex-end";
-
-        const btnSobrescrever = document.createElement("button");
-        btnSobrescrever.className = "btn";
-        btnSobrescrever.textContent = "Sobrescrever";
-        btnSobrescrever.onclick = () => {
-          document.body.removeChild(modal);
+        // Mostra modal elegante de configuração duplicada
+        showDuplicateConfigModal(igual, () => {
           saveToStorage(true);
-        };
-        actions.appendChild(btnSobrescrever);
-
-        const btnCancelar = document.createElement("button");
-        btnCancelar.className = "btn ghost";
-        btnCancelar.textContent = "Cancelar";
-        btnCancelar.onclick = () => document.body.removeChild(modal);
-        actions.appendChild(btnCancelar);
-
-        box.appendChild(actions);
-        modal.appendChild(box);
-        document.body.appendChild(modal);
+        });
       }
     } catch (error) {
       console.error("Erro ao salvar:", error);
@@ -1098,8 +1361,39 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const goPrev = () => {
-    if (currentStep > 1) setStep(currentStep - 1);
-    render();
+    if (currentStep <= 1) return; // Não faz nada se já estiver na primeira tela
+    
+    // Define mensagens específicas para cada tela
+    const stepMessages = {
+      2: {
+        title: "Voltar para Dispositivo",
+        message: "Deseja realmente voltar para a tela anterior? As informações de conexão permanecerão salvas."
+      },
+      3: {
+        title: "Voltar para Conexão", 
+        message: "Deseja realmente voltar para a tela anterior? As sensibilidades configuradas permanecerão salvas."
+      }
+    };
+    
+    const stepConfig = stepMessages[currentStep];
+    if (!stepConfig) {
+      // Fallback para casos não mapeados
+      setStep(currentStep - 1);
+      render();
+      return;
+    }
+    
+    // Mostra modal de confirmação
+    showConfirmModal(
+      stepConfig.title,
+      stepConfig.message,
+      () => {
+        // Confirmado - volta para tela anterior
+        setStep(currentStep - 1);
+        render();
+        toast("Retornado para tela anterior.", "ok");
+      }
+    );
   };
 
   // ====== Eventos ======
@@ -1196,6 +1490,338 @@ document.addEventListener("DOMContentLoaded", () => {
     saveToStorage();
   });
 
+  // Modal elegante para histórico de sensibilidades
+  const showHistoryModal = (historyItems) => {
+    // Remove modal existente se houver
+    const existingModal = document.querySelector('.modal-overlay');
+    if (existingModal) {
+      existingModal.remove();
+    }
+
+    // Ordena por data, mais recente primeiro
+    historyItems.sort((a, b) => (b.date || 0) - (a.date || 0));
+
+    // Cria o modal overlay
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+    
+    // Cria o cabeçalho com contador
+    const itemCount = historyItems.length;
+    const headerHTML = `
+      <div class="modal-header history-header">
+        <div class="header-info">
+          <div class="modal-icon">📂</div>
+          <div class="header-text">
+            <h3 class="modal-title">Histórico de Sensibilidades</h3>
+            <p class="history-count">${itemCount} configuração${itemCount !== 1 ? 'ões' : ''} salva${itemCount !== 1 ? 's' : ''}</p>
+          </div>
+        </div>
+        <button class="btn ghost danger clear-all-btn" data-action="clear-all"
+                title="Limpar todo o histórico (modal permanece aberto)"
+                aria-label="Remover todas as ${itemCount} configurações salvas - modal permanece aberto">
+          🗑️ Limpar Tudo
+        </button>
+      </div>
+    `;
+
+    // Cria a lista de itens do histórico
+    const historyListHTML = historyItems.map((item, index) => {
+      const date = new Date(item.date);
+      const dateStr = DateFormatter.format(date).completo;
+      const deviceIcon = item.platform === 'android' ? '🤖' : '📱';
+      const deviceInfo = item.deviceModel || 'Dispositivo não especificado';
+      const osInfo = item.osVersion ? ` • ${item.osVersion}` : '';
+      const networkInfo = item.netSpeed ? ` • ${item.netSpeed}` : '';
+      
+      const sensibilityData = [
+        { label: '📷 Câmera', value: item.cam },
+        { label: '🎯 ADS', value: item.ads },
+        { label: '🔄 Livre', value: item.livre },
+        { label: '🌀 Gyro', value: item.gyro },
+        { label: '🎯 Gyro ADS', value: item.gyroAds }
+      ];
+
+      return `
+        <div class="history-item" data-index="${index}">
+          <div class="history-item-header">
+            <div class="item-date">
+              <span class="date-primary">${dateStr.split(' às ')[0]}</span>
+              <span class="date-time">${dateStr.split(' às ')[1]}</span>
+            </div>
+            <div class="item-badge ${item.platform}">${deviceIcon}</div>
+          </div>
+          
+          <div class="history-item-content">
+            <div class="device-info">
+              <span class="device-name">${deviceInfo}</span>
+              <span class="device-details">${osInfo}${networkInfo}</span>
+            </div>
+            
+            <div class="sensitivity-grid">
+              ${sensibilityData.map(sens => `
+                <div class="sens-item">
+                  <span class="sens-label">${sens.label}</span>
+                  <span class="sens-value">${sens.value}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          
+          <div class="history-item-actions">
+            <button class="btn primary restore-btn" data-index="${index}" 
+                    title="Restaurar configuração (modal permanece aberto)"
+                    aria-label="Restaurar configuração salva em ${DateFormatter.format(new Date(item.date)).completo} - modal permanece aberto">
+              ↩️ Restaurar
+            </button>
+            <button class="btn ghost danger remove-btn" data-index="${index}"
+                    title="Remover configuração (modal permanece aberto)"
+                    aria-label="Remover configuração salva em ${DateFormatter.format(new Date(item.date)).completo} - modal permanece aberto">
+              🗑️ Remover
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Monta o HTML completo do modal
+    modalOverlay.innerHTML = `
+      <div class="modal history-modal">
+        ${headerHTML}
+        <div class="modal-body">
+          <div class="history-list">
+            ${historyListHTML}
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn primary close-btn" 
+                  aria-label="Fechar modal do histórico de sensibilidades - única forma de sair"
+                  title="Clique aqui para fechar o modal (ESC e clique fora não funcionam)">
+            <span aria-hidden="true">✖️</span>
+            <span>FECHAR</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modalOverlay);
+
+    // Mostra o modal com animação
+    setTimeout(() => {
+      modalOverlay.classList.add('show');
+    }, 10);
+
+    // Event listeners
+    function closeModal() {
+      modalOverlay.classList.remove('show');
+      setTimeout(() => {
+        modalOverlay.remove();
+        // Remove event listener quando modal for fechado
+        document.removeEventListener('keydown', handleEscape);
+      }, 300);
+    }
+
+    // Botão fechar com feedback tátil e acessibilidade
+    const closeBtn = modalOverlay.querySelector('.close-btn');
+    closeBtn.addEventListener('click', () => {
+      // Feedback tátil em dispositivos móveis
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+      closeModal();
+    });
+
+    // Removido suporte automático a ESC - agora só informa que deve usar botão FECHAR
+
+    // Botão limpar tudo
+    modalOverlay.querySelector('.clear-all-btn').addEventListener('click', () => {
+      // Feedback tátil
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+      
+      showConfirmModal(
+        "🗑️ Limpar Todo o Histórico",
+        `Tem certeza que deseja remover todas as ${itemCount} configurações salvas? Esta ação não pode ser desfeita e você perderá todo o histórico.`,
+        () => {
+          localStorage.removeItem(CONFIG.STORAGE.HISTORY_KEY);
+          // Não fecha o modal automaticamente - usuário deve usar botão FECHAR
+          toast("🗑️ Histórico limpo com sucesso! Use o botão FECHAR para sair.", "ok");
+          btnCarregar.disabled = true;
+          
+          // Atualiza o conteúdo do modal para mostrar lista vazia
+          const historyList = modalOverlay.querySelector('.history-list');
+          historyList.innerHTML = `
+            <div style="text-align: center; padding: 40px 20px; color: var(--text-secondary);">
+              <div style="font-size: 48px; margin-bottom: 16px;">📭</div>
+              <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Histórico Vazio</div>
+              <div style="font-size: 14px;">Todas as configurações foram removidas.</div>
+            </div>
+          `;
+          
+          // Remove o botão "Limpar Tudo" já que não há mais itens
+          const clearBtn = modalOverlay.querySelector('.clear-all-btn');
+          if (clearBtn) {
+            clearBtn.style.display = 'none';
+          }
+          
+          // Feedback tátil de sucesso
+          if (navigator.vibrate) {
+            navigator.vibrate([100, 50, 100]);
+          }
+        }
+      );
+    });
+
+    // Botões restaurar
+    modalOverlay.querySelectorAll('.restore-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        // Feedback tátil
+        if (navigator.vibrate) {
+          navigator.vibrate(50);
+        }
+        
+        const index = parseInt(e.target.dataset.index);
+        const item = historyItems[index];
+        const date = new Date(item.date);
+        const dateStr = DateFormatter.format(date).completo;
+        const deviceInfo = item.deviceModel || item.platform;
+        
+        showConfirmModal(
+          "↩️ Restaurar Configuração",
+          `Deseja restaurar a configuração salva em <strong>${dateStr}</strong> para <strong>${deviceInfo}</strong>?<br><br>⚠️ Os valores atuais serão substituídos pela configuração selecionada.`,
+          () => {
+            restore(item);
+            // Reseta o estado dos resultados
+            showPanel = false;
+            resultadoCalculado = false;
+            // Desativa todos os botões de ação
+            btnSalvar.disabled = true;
+            // Modal permanece aberto - usuário deve usar botão FECHAR
+            toast("↩️ Configuração restaurada! Use o botão FECHAR para sair.", "ok");
+            
+            // Feedback tátil de sucesso
+            if (navigator.vibrate) {
+              navigator.vibrate([100, 50, 100]);
+            }
+          }
+        );
+      });
+    });
+
+    // Botões remover
+    modalOverlay.querySelectorAll('.remove-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        // Feedback tátil
+        if (navigator.vibrate) {
+          navigator.vibrate(50);
+        }
+        
+        const index = parseInt(e.target.dataset.index);
+        const item = historyItems[index];
+        const date = new Date(item.date);
+        const dateStr = DateFormatter.format(date).completo;
+        
+        showConfirmModal(
+          "🗑️ Remover Configuração",
+          `Tem certeza que deseja remover a configuração salva em <strong>${dateStr}</strong>?<br><br>⚠️ Esta ação não pode ser desfeita.`,
+          () => {
+            // Remove do array e atualiza localStorage
+            historyItems.splice(index, 1);
+            localStorage.setItem(CONFIG.STORAGE.HISTORY_KEY, JSON.stringify(historyItems));
+            
+            // Modal permanece aberto - atualiza conteúdo dinamicamente
+            if (historyItems.length === 0) {
+              btnCarregar.disabled = true;
+              toast("📭 Último item removido! Use o botão FECHAR para sair.", "ok");
+              
+              // Atualiza o conteúdo para mostrar lista vazia
+              const historyList = modalOverlay.querySelector('.history-list');
+              historyList.innerHTML = `
+                <div style="text-align: center; padding: 40px 20px; color: var(--text-secondary);">
+                  <div style="font-size: 48px; margin-bottom: 16px;">📭</div>
+                  <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Histórico Vazio</div>
+                  <div style="font-size: 14px;">Não há mais configurações salvas.</div>
+                </div>
+              `;
+              
+              // Remove o botão "Limpar Tudo"
+              const clearBtn = modalOverlay.querySelector('.clear-all-btn');
+              if (clearBtn) {
+                clearBtn.style.display = 'none';
+              }
+            } else {
+              toast(`🗑️ Configuração removida! ${historyItems.length} ${historyItems.length === 1 ? 'configuração restante' : 'configurações restantes'}.`, "ok");
+              
+              // Remove apenas o item específico do DOM
+              const historyItem = btn.closest('.history-item');
+              if (historyItem) {
+                historyItem.style.animation = 'fade-out 0.3s ease';
+                setTimeout(() => {
+                  historyItem.remove();
+                  // Reindexar os botões restantes
+                  modalOverlay.querySelectorAll('.restore-btn, .remove-btn').forEach((button, newIndex) => {
+                    const actionType = button.classList.contains('restore-btn') ? 'restore-btn' : 'remove-btn';
+                    if (actionType === 'restore-btn') {
+                      button.dataset.index = Math.floor(newIndex / 2);
+                    } else {
+                      button.dataset.index = Math.floor(newIndex / 2);
+                    }
+                  });
+                }, 300);
+              }
+            }
+            
+            // Feedback tátil de sucesso
+            if (navigator.vibrate) {
+              navigator.vibrate([100, 50, 100]);
+            }
+          }
+        );
+      });
+    });
+
+    // Clique no overlay não fecha mais o modal
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) {
+        // Feedback visual de que o modal só fecha pelo botão FECHAR
+        const modal = modalOverlay.querySelector('.history-modal');
+        modal.style.animation = 'modal-shake 0.3s ease';
+        setTimeout(() => {
+          modal.style.animation = '';
+        }, 300);
+        
+        // Feedback tátil sutil
+        if (navigator.vibrate) {
+          navigator.vibrate(30);
+        }
+        
+        // Toast informativo
+        toast("💡 Use o botão FECHAR para sair do histórico.", "info");
+      }
+    });
+
+    // Tecla ESC não fecha mais o modal
+    function handleEscape(e) {
+      if (e.key === 'Escape') {
+        // Feedback visual de que o modal só fecha pelo botão FECHAR
+        const modal = modalOverlay.querySelector('.history-modal');
+        modal.style.animation = 'modal-shake 0.3s ease';
+        setTimeout(() => {
+          modal.style.animation = '';
+        }, 300);
+        
+        // Feedback tátil sutil
+        if (navigator.vibrate) {
+          navigator.vibrate(30);
+        }
+        
+        // Toast informativo
+        toast("💡 Use o botão FECHAR para sair do histórico.", "info");
+      }
+    }
+    document.addEventListener('keydown', handleEscape);
+  };
+
   btnCarregar.addEventListener("click", () => {
     let hist = [];
     try {
@@ -1203,7 +1829,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch {}
 
     if (!hist.length) {
-      toast("Nenhum histórico salvo.", "err");
+      toast("📭 Nenhum histórico encontrado.", "err");
       return;
     }
 
@@ -1212,146 +1838,14 @@ document.addEventListener("DOMContentLoaded", () => {
     hist = hist.filter(item => now - (item.date || 0) < CONFIG.STORAGE.HISTORY_DAYS * 24 * 60 * 60 * 1000);
 
     if (!hist.length) {
-      toast("Nenhum histórico encontrado.", "err");
+      toast("📭 Nenhum histórico recente encontrado.", "err");
+      localStorage.removeItem(CONFIG.STORAGE.HISTORY_KEY);
+      btnCarregar.disabled = true;
       return;
     }
 
-    // Ordena por data, mais recente primeiro
-    hist.sort((a, b) => (b.date || 0) - (a.date || 0));
-
-    // Abre modal com histórico
-    const modal = document.createElement("div");
-    modal.className = "modal";
-    modal.style.position = "fixed";
-    modal.style.top = "0";
-    modal.style.left = "0";
-    modal.style.width = "100vw";
-    modal.style.height = "100vh";
-    modal.style.background = "rgba(0,0,0,0.75)";
-    modal.style.display = "flex";
-    modal.style.alignItems = "center";
-    modal.style.justifyContent = "center";
-    modal.style.zIndex = "9999";
-
-    const box = document.createElement("div");
-    box.className = "modal-content";
-    box.style.background = "var(--surface)";
-    box.style.padding = "20px";
-    box.style.borderRadius = "12px";
-    box.style.maxWidth = "90vw";
-    box.style.width = "500px";
-    box.style.maxHeight = "80vh";
-    box.style.overflowY = "auto";
-
-    const titleBar = document.createElement("div");
-    titleBar.style.display = "flex";
-    titleBar.style.justifyContent = "space-between";
-    titleBar.style.alignItems = "center";
-    titleBar.style.marginBottom = "16px";
-
-    const title = document.createElement("h3");
-    title.textContent = "Histórico de Sensibilidades";
-    title.style.margin = "0";
-    titleBar.appendChild(title);
-
-    const btnLimparTodos = document.createElement("button");
-    btnLimparTodos.className = "btn ghost danger";
-    btnLimparTodos.textContent = "Limpar Histórico";
-    btnLimparTodos.onclick = () => {
-      showConfirmModal(
-        "Limpar Todo o Histórico",
-        "Tem certeza que deseja limpar todo o histórico de sensibilidades? Esta ação não pode ser desfeita.",
-        () => {
-          localStorage.removeItem(CONFIG.STORAGE.HISTORY_KEY);
-          document.body.removeChild(modal);
-          toast("Histórico limpo com sucesso!", "ok");
-          btnCarregar.disabled = true;
-        }
-      );
-    };
-    titleBar.appendChild(btnLimparTodos);
-    box.appendChild(titleBar);
-
-    hist.forEach(item => {
-      const row = document.createElement("div");
-      row.style.display = "flex";
-      row.style.alignItems = "center";
-      row.style.padding = "8px 0";
-      row.style.borderBottom = "1px solid var(--border)";
-
-      const info = document.createElement("div");
-      info.style.flex = "1";
-      const date = new Date(item.date);
-      info.textContent = `${DateFormatter.format(date).completo} - ${item.deviceModel || item.platform}`;
-      row.appendChild(info);
-
-      const actions = document.createElement("div");
-      actions.style.display = "flex";
-      actions.style.gap = "8px";
-
-      const btnRestore = document.createElement("button");
-      btnRestore.className = "btn";
-      btnRestore.textContent = "Restaurar";
-      btnRestore.onclick = () => {
-        const date = new Date(item.date);
-        const dateStr = DateFormatter.format(date).completo;
-        const deviceInfo = item.deviceModel || item.platform;
-        
-        showConfirmModal(
-          "Restaurar Configuração",
-          `Deseja restaurar a configuração salva em ${dateStr} para ${deviceInfo}? Os valores atuais serão substituídos.`,
-          () => {
-            restore(item);
-            // Reseta o estado dos resultados
-            showPanel = false;
-            resultadoCalculado = false;
-            // Desativa todos os botões de ação
-            btnSalvar.disabled = true;
-            document.body.removeChild(modal);
-            toast("Configuração restaurada! Calcule novamente para gerar PDF.", "ok");
-          }
-        );
-      };
-      actions.appendChild(btnRestore);
-
-      const btnRemover = document.createElement("button");
-      btnRemover.className = "btn ghost danger";
-      btnRemover.textContent = "Remover";
-      btnRemover.onclick = () => {
-        const date = new Date(item.date);
-        const dateStr = DateFormatter.format(date).completo;
-        showConfirmModal(
-          "Remover do Histórico",
-          `Tem certeza que deseja remover a configuração salva em ${dateStr}? Esta ação não pode ser desfeita.`,
-          () => {
-            hist = hist.filter(h => h !== item);
-            localStorage.setItem(CONFIG.STORAGE.HISTORY_KEY, JSON.stringify(hist));
-            row.remove();
-            if (hist.length === 0) {
-              document.body.removeChild(modal);
-              btnCarregar.disabled = true;
-              toast("Histórico vazio!", "ok");
-            } else {
-              toast("Item removido!", "ok");
-            }
-          }
-        );
-      };
-      actions.appendChild(btnRemover);
-
-      row.appendChild(actions);
-      box.appendChild(row);
-    });
-
-    const btnClose = document.createElement("button");
-    btnClose.className = "btn ghost";
-    btnClose.textContent = "Fechar";
-    btnClose.style.marginTop = "16px";
-    btnClose.onclick = () => document.body.removeChild(modal);
-    box.appendChild(btnClose);
-
-    modal.appendChild(box);
-    document.body.appendChild(modal);
+    // Mostra o modal modernizado
+    showHistoryModal(hist);
   });
 
   btnCalcular.addEventListener("click", () => {
@@ -1405,6 +1899,22 @@ document.addEventListener("DOMContentLoaded", () => {
   // Inicializa os selects como desabilitados
   updateDeviceModels(null);
   updateSoftwareVersions(null, null);
+  
+  // ====== Sistema de Prevenção de Recarregamento ======
+  
+  // Intercepta tentativas de recarregamento/fechamento da página
+  window.addEventListener('beforeunload', (event) => {
+    // Só mostra aviso se há dados não salvos
+    if (hasUnsavedData()) {
+      const message = 'Você tem dados não salvos. Se sair da página, todos os dados serão perdidos. Deseja continuar?';
+      
+      // Padrão moderno - define returnValue
+      event.returnValue = message;
+      
+      // Padrão antigo - retorna mensagem
+      return message;
+    }
+  });
   
   atualizarEstadoBotoes();
   render();
