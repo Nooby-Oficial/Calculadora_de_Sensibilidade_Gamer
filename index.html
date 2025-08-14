@@ -53,10 +53,12 @@
           <div class="radio-row">
             <label class="radio">
               <input type="radio" name="platform" value="android" id="platform-android" />
+              <span class="platform-icon">🤖</span>
               <span>Android</span>
             </label>
             <label class="radio">
               <input type="radio" name="platform" value="ios" id="platform-ios" />
+              <span class="platform-icon">📱</span>
               <span>iPhone (iOS)</span>
             </label>
           </div>
@@ -65,14 +67,18 @@
 
         <div class="field">
           <label for="deviceModel" class="label">Modelo do dispositivo</label>
-          <input type="text" id="deviceModel" placeholder="Ex.: Galaxy S21, iPhone 13" />
-          <small class="hint">Opcional, mas ajuda a manter um registro.</small>
+          <select id="deviceModel" disabled>
+            <option value="">Selecione primeiro a plataforma</option>
+          </select>
+          <small class="hint">Escolha o modelo do seu dispositivo da lista.</small>
         </div>
 
         <div class="field">
           <label for="osVersion" class="label">Versão do software</label>
-          <input type="text" id="osVersion" inputmode="numeric" placeholder="Ex.: 13 (Android) ou 17 (iOS)" />
-          <small class="hint">Informe o número principal da versão (apenas dígitos).</small>
+          <select id="osVersion" disabled>
+            <option value="">Selecione primeiro a plataforma e modelo</option>
+          </select>
+          <small class="hint">Escolha a versão do sistema operacional do seu dispositivo.</small>
         </div>
       </div>
     </section>

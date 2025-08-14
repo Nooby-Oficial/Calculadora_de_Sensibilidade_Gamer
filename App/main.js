@@ -24,6 +24,293 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  // ====== LISTAS DE DISPOSITIVOS ======
+  const DEVICE_MODELS = {
+    android: [
+      "Samsung Galaxy S24 Ultra",
+      "Samsung Galaxy S24+",
+      "Samsung Galaxy S24",
+      "Samsung Galaxy S23 Ultra",
+      "Samsung Galaxy S23+",
+      "Samsung Galaxy S23",
+      "Samsung Galaxy S22 Ultra",
+      "Samsung Galaxy S22+",
+      "Samsung Galaxy S22",
+      "Samsung Galaxy S21 Ultra",
+      "Samsung Galaxy S21+",
+      "Samsung Galaxy S21",
+      "Samsung Galaxy S20 Ultra",
+      "Samsung Galaxy S20+",
+      "Samsung Galaxy S20",
+      "Samsung Galaxy Note 20 Ultra",
+      "Samsung Galaxy Note 20",
+      "Samsung Galaxy A54",
+      "Samsung Galaxy A53",
+      "Samsung Galaxy A52",
+      "Samsung Galaxy A51",
+      "Samsung Galaxy A34",
+      "Samsung Galaxy A33",
+      "Samsung Galaxy A32",
+      "Samsung Galaxy A31",
+      "Samsung Galaxy A24",
+      "Samsung Galaxy A23",
+      "Samsung Galaxy A22",
+      "Samsung Galaxy A21",
+      "Xiaomi 14 Ultra",
+      "Xiaomi 14 Pro",
+      "Xiaomi 14",
+      "Xiaomi 13 Ultra",
+      "Xiaomi 13 Pro",
+      "Xiaomi 13",
+      "Xiaomi 12S Ultra",
+      "Xiaomi 12 Pro",
+      "Xiaomi 12",
+      "Xiaomi 11T Pro",
+      "Xiaomi 11T",
+      "Xiaomi Mi 11 Ultra",
+      "Xiaomi Mi 11 Pro",
+      "Xiaomi Mi 11",
+      "Xiaomi Mi 10T Pro",
+      "Xiaomi Mi 10T",
+      "Xiaomi Mi 10 Pro",
+      "Xiaomi Mi 10",
+      "Xiaomi Redmi Note 13 Pro",
+      "Xiaomi Redmi Note 13",
+      "Xiaomi Redmi Note 12 Pro",
+      "Xiaomi Redmi Note 12",
+      "Xiaomi Redmi Note 11 Pro",
+      "Xiaomi Redmi Note 11",
+      "Xiaomi Redmi Note 10 Pro",
+      "Xiaomi Redmi Note 10",
+      "Xiaomi Redmi Note 9 Pro",
+      "Xiaomi Redmi Note 9",
+      "Xiaomi POCO X6 Pro",
+      "Xiaomi POCO X6",
+      "Xiaomi POCO X5 Pro",
+      "Xiaomi POCO X5",
+      "Xiaomi POCO X4 Pro",
+      "Xiaomi POCO X3 Pro",
+      "Xiaomi POCO F5 Pro",
+      "Xiaomi POCO F5",
+      "Xiaomi POCO F4",
+      "Xiaomi POCO F3",
+      "OnePlus 12",
+      "OnePlus 11",
+      "OnePlus 10 Pro",
+      "OnePlus 10T",
+      "OnePlus 9 Pro",
+      "OnePlus 9",
+      "OnePlus 8T",
+      "OnePlus 8 Pro",
+      "OnePlus 8",
+      "OnePlus Nord 3",
+      "OnePlus Nord 2T",
+      "OnePlus Nord 2",
+      "OnePlus Nord CE 3",
+      "OnePlus Nord CE 2",
+      "Google Pixel 8 Pro",
+      "Google Pixel 8",
+      "Google Pixel 7 Pro",
+      "Google Pixel 7",
+      "Google Pixel 6 Pro",
+      "Google Pixel 6",
+      "Google Pixel 5",
+      "Google Pixel 4a",
+      "Huawei P60 Pro",
+      "Huawei P50 Pro",
+      "Huawei P40 Pro",
+      "Huawei Mate 60 Pro",
+      "Huawei Mate 50 Pro",
+      "Huawei Mate 40 Pro",
+      "Realme GT 5 Pro",
+      "Realme GT 3",
+      "Realme GT 2 Pro",
+      "Realme GT Neo 5",
+      "Realme GT Neo 3",
+      "Realme 11 Pro+",
+      "Realme 10 Pro+",
+      "Realme 9 Pro+",
+      "Motorola Edge 40 Pro",
+      "Motorola Edge 30 Ultra",
+      "Motorola Moto G84",
+      "Motorola Moto G73",
+      "Motorola Moto G62",
+      "Asus ROG Phone 8 Pro",
+      "Asus ROG Phone 7 Ultimate",
+      "Asus ROG Phone 6 Pro",
+      "Asus ROG Phone 5s Pro",
+      "Asus Zenfone 10",
+      "Asus Zenfone 9",
+      "Sony Xperia 1 V",
+      "Sony Xperia 5 V",
+      "Sony Xperia 1 IV",
+      "Sony Xperia 5 IV",
+      "Sony Xperia 1 III",
+      "Vivo X100 Pro",
+      "Vivo X90 Pro",
+      "Vivo X80 Pro",
+      "Vivo V29 Pro",
+      "Vivo V27 Pro",
+      "Oppo Find X7 Ultra",
+      "Oppo Find X6 Pro",
+      "Oppo Find X5 Pro",
+      "Oppo Reno 11 Pro",
+      "Oppo Reno 10 Pro",
+      "Nothing Phone (2)",
+      "Nothing Phone (1)"
+    ],
+    ios: [
+      "iPhone 15 Pro Max",
+      "iPhone 15 Pro",
+      "iPhone 15 Plus",
+      "iPhone 15",
+      "iPhone 14 Pro Max",
+      "iPhone 14 Pro",
+      "iPhone 14 Plus",
+      "iPhone 14",
+      "iPhone 13 Pro Max",
+      "iPhone 13 Pro",
+      "iPhone 13 mini",
+      "iPhone 13",
+      "iPhone 12 Pro Max",
+      "iPhone 12 Pro",
+      "iPhone 12 mini",
+      "iPhone 12",
+      "iPhone SE (3ª geração)",
+      "iPhone SE (2ª geração)",
+      "iPhone 11 Pro Max",
+      "iPhone 11 Pro",
+      "iPhone 11",
+      "iPhone XS Max",
+      "iPhone XS",
+      "iPhone XR"
+    ]
+  };
+
+  // ====== VERSÕES DE SOFTWARE ======
+  const SOFTWARE_VERSIONS = {
+    android: {
+      // Versões suportadas por dispositivos desde 2020
+      default: ["15", "14", "13", "12", "11", "10", "9"],
+      specific: {
+        // Samsung Galaxy S24 series
+        "Samsung Galaxy S24 Ultra": ["15", "14"],
+        "Samsung Galaxy S24+": ["15", "14"],
+        "Samsung Galaxy S24": ["15", "14"],
+        
+        // Samsung Galaxy S23 series
+        "Samsung Galaxy S23 Ultra": ["15", "14", "13"],
+        "Samsung Galaxy S23+": ["15", "14", "13"],
+        "Samsung Galaxy S23": ["15", "14", "13"],
+        
+        // Samsung Galaxy S22 series
+        "Samsung Galaxy S22 Ultra": ["15", "14", "13", "12"],
+        "Samsung Galaxy S22+": ["15", "14", "13", "12"],
+        "Samsung Galaxy S22": ["15", "14", "13", "12"],
+        
+        // Samsung Galaxy S21 series
+        "Samsung Galaxy S21 Ultra": ["15", "14", "13", "12", "11"],
+        "Samsung Galaxy S21+": ["15", "14", "13", "12", "11"],
+        "Samsung Galaxy S21": ["15", "14", "13", "12", "11"],
+        
+        // Samsung Galaxy S20 series
+        "Samsung Galaxy S20 Ultra": ["14", "13", "12", "11", "10"],
+        "Samsung Galaxy S20+": ["14", "13", "12", "11", "10"],
+        "Samsung Galaxy S20": ["14", "13", "12", "11", "10"],
+        
+        // Samsung Galaxy Note 20 series
+        "Samsung Galaxy Note 20 Ultra": ["14", "13", "12", "11", "10"],
+        "Samsung Galaxy Note 20": ["14", "13", "12", "11", "10"],
+        
+        // Google Pixel 8 series
+        "Google Pixel 8 Pro": ["15", "14"],
+        "Google Pixel 8": ["15", "14"],
+        
+        // Google Pixel 7 series
+        "Google Pixel 7 Pro": ["15", "14", "13"],
+        "Google Pixel 7": ["15", "14", "13"],
+        
+        // Google Pixel 6 series
+        "Google Pixel 6 Pro": ["15", "14", "13", "12"],
+        "Google Pixel 6": ["15", "14", "13", "12"],
+        
+        // Google Pixel 5
+        "Google Pixel 5": ["14", "13", "12", "11"],
+        
+        // OnePlus dispositivos
+        "OnePlus 12": ["15", "14"],
+        "OnePlus 11": ["15", "14", "13"],
+        "OnePlus 10 Pro": ["15", "14", "13", "12"],
+        "OnePlus 10T": ["15", "14", "13", "12"],
+        "OnePlus 9 Pro": ["15", "14", "13", "12", "11"],
+        "OnePlus 9": ["15", "14", "13", "12", "11"],
+        "OnePlus 8T": ["14", "13", "12", "11"],
+        "OnePlus 8 Pro": ["14", "13", "12", "11", "10"],
+        "OnePlus 8": ["14", "13", "12", "11", "10"],
+        
+        // Xiaomi dispositivos recentes
+        "Xiaomi 14 Ultra": ["15", "14"],
+        "Xiaomi 14 Pro": ["15", "14"],
+        "Xiaomi 14": ["15", "14"],
+        "Xiaomi 13 Ultra": ["15", "14", "13"],
+        "Xiaomi 13 Pro": ["15", "14", "13"],
+        "Xiaomi 13": ["15", "14", "13"],
+        
+        // Dispositivos mais antigos com versões limitadas
+        "iPhone XR": ["13", "12", "11", "10"], // Placeholder para Android (não aplicável)
+        "iPhone XS": ["13", "12", "11", "10"],
+        "iPhone XS Max": ["13", "12", "11", "10"]
+      }
+    },
+    ios: {
+      // Versões iOS suportadas por dispositivos desde 2020
+      default: ["18", "17", "16", "15", "14", "13"],
+      specific: {
+        // iPhone 15 series (2023)
+        "iPhone 15 Pro Max": ["18", "17"],
+        "iPhone 15 Pro": ["18", "17"],
+        "iPhone 15 Plus": ["18", "17"],
+        "iPhone 15": ["18", "17"],
+        
+        // iPhone 14 series (2022)
+        "iPhone 14 Pro Max": ["18", "17", "16"],
+        "iPhone 14 Pro": ["18", "17", "16"],
+        "iPhone 14 Plus": ["18", "17", "16"],
+        "iPhone 14": ["18", "17", "16"],
+        
+        // iPhone 13 series (2021)
+        "iPhone 13 Pro Max": ["18", "17", "16", "15"],
+        "iPhone 13 Pro": ["18", "17", "16", "15"],
+        "iPhone 13 mini": ["18", "17", "16", "15"],
+        "iPhone 13": ["18", "17", "16", "15"],
+        
+        // iPhone 12 series (2020)
+        "iPhone 12 Pro Max": ["18", "17", "16", "15", "14"],
+        "iPhone 12 Pro": ["18", "17", "16", "15", "14"],
+        "iPhone 12 mini": ["18", "17", "16", "15", "14"],
+        "iPhone 12": ["18", "17", "16", "15", "14"],
+        
+        // iPhone SE 3ª geração (2022)
+        "iPhone SE (3ª geração)": ["18", "17", "16", "15"],
+        
+        // iPhone SE 2ª geração (2020)
+        "iPhone SE (2ª geração)": ["18", "17", "16", "15", "14", "13"],
+        
+        // iPhone 11 series (2019)
+        "iPhone 11 Pro Max": ["17", "16", "15", "14", "13"],
+        "iPhone 11 Pro": ["17", "16", "15", "14", "13"],
+        "iPhone 11": ["17", "16", "15", "14", "13"],
+        
+        // iPhone XS series (2018)
+        "iPhone XS Max": ["16", "15", "14", "13"],
+        "iPhone XS": ["16", "15", "14", "13"],
+        
+        // iPhone XR (2018)
+        "iPhone XR": ["16", "15", "14", "13"]
+      }
+    }
+  };
+
   // ====== UTILITÁRIOS ======
   /**
    * Seletores DOM otimizados
@@ -38,6 +325,118 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
   const round = (v) => Math.round(v);
+
+  // ====== FUNÇÕES DE DISPOSITIVOS ======
+  /**
+   * Atualiza a lista de modelos de dispositivos baseada na plataforma selecionada
+   */
+  const updateDeviceModels = (platform) => {
+    const deviceSelect = $("#deviceModel");
+    
+    // Limpa as opções atuais
+    deviceSelect.innerHTML = "";
+    
+    if (!platform) {
+      // Se nenhuma plataforma selecionada, desabilita o select
+      deviceSelect.disabled = true;
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.textContent = "Selecione primeiro a plataforma";
+      deviceSelect.appendChild(defaultOption);
+      
+      // Também reseta as versões de software
+      updateSoftwareVersions(null, null);
+      return;
+    }
+    
+    // Habilita o select e adiciona opção padrão
+    deviceSelect.disabled = false;
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.textContent = "Selecione o modelo do dispositivo";
+    deviceSelect.appendChild(defaultOption);
+    
+    // Adiciona os modelos da plataforma selecionada
+    const models = DEVICE_MODELS[platform] || [];
+    models.forEach(model => {
+      const option = document.createElement("option");
+      option.value = model;
+      option.textContent = model;
+      deviceSelect.appendChild(option);
+    });
+    
+    // Adiciona opção "Outro" no final
+    const otherOption = document.createElement("option");
+    otherOption.value = "outro";
+    otherOption.textContent = "Outro (não listado)";
+    deviceSelect.appendChild(otherOption);
+    
+    // Reseta as versões de software quando a plataforma muda
+    updateSoftwareVersions(platform, "");
+  };
+
+  /**
+   * Atualiza a lista de versões de software baseada na plataforma e modelo selecionado
+   */
+  const updateSoftwareVersions = (platform, deviceModel) => {
+    const versionSelect = $("#osVersion");
+    
+    // Limpa as opções atuais
+    versionSelect.innerHTML = "";
+    
+    if (!platform || !deviceModel || deviceModel === "" || deviceModel === "outro") {
+      // Se nenhuma plataforma/modelo selecionado ou "Outro", desabilita o select
+      versionSelect.disabled = true;
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      
+      if (!platform) {
+        defaultOption.textContent = "Selecione primeiro a plataforma e modelo";
+      } else if (!deviceModel || deviceModel === "") {
+        defaultOption.textContent = "Selecione primeiro o modelo do dispositivo";
+      } else if (deviceModel === "outro") {
+        defaultOption.textContent = "Modelo personalizado - digite a versão manualmente";
+        // Para modelos personalizados, podemos habilitar e mostrar versões padrão
+        versionSelect.disabled = false;
+        versionSelect.appendChild(defaultOption);
+        
+        // Adiciona versões padrão para a plataforma
+        const defaultVersions = SOFTWARE_VERSIONS[platform]?.default || [];
+        defaultVersions.forEach(version => {
+          const option = document.createElement("option");
+          option.value = version;
+          option.textContent = platform === "ios" ? `iOS ${version}` : `Android ${version}`;
+          versionSelect.appendChild(option);
+        });
+        return;
+      }
+      
+      versionSelect.appendChild(defaultOption);
+      return;
+    }
+    
+    // Habilita o select e adiciona opção padrão
+    versionSelect.disabled = false;
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.textContent = "Selecione a versão do sistema";
+    versionSelect.appendChild(defaultOption);
+    
+    // Busca versões específicas para o modelo ou usa as padrão
+    const platformVersions = SOFTWARE_VERSIONS[platform];
+    if (!platformVersions) return;
+    
+    const specificVersions = platformVersions.specific[deviceModel];
+    const versions = specificVersions || platformVersions.default;
+    
+    // Adiciona as versões disponíveis
+    versions.forEach(version => {
+      const option = document.createElement("option");
+      option.value = version;
+      option.textContent = platform === "ios" ? `iOS ${version}` : `Android ${version}`;
+      versionSelect.appendChild(option);
+    });
+  };
 
   const toast = (() => {
     let el = $(".toast");
@@ -321,8 +720,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // ====== Sanitização e leitura ======
   const parseOSMajor = () => {
     const v = (inOSVersion.value || "").trim();
-    const digits = v.replace(/[^\d]/g, "");
-    const m = num(digits);
+    // Para select, o valor já é o número da versão
+    if (v === "") return null;
+    const m = num(v);
     return Number.isFinite(m) ? m : null;
   };
 
@@ -474,8 +874,23 @@ document.addEventListener("DOMContentLoaded", () => {
     // Restaura os valores dos campos
     rAndroid.checked = data.platform === "android";
     rIOS.checked = data.platform === "ios";
-    inDeviceModel.value = data.deviceModel || "";
-    inOSVersion.value = data.osVersion || "";
+    
+    // Atualiza a lista de dispositivos baseada na plataforma restaurada
+    const platform = data.platform === "android" ? "android" : (data.platform === "ios" ? "ios" : null);
+    updateDeviceModels(platform);
+    
+    // Restaura o modelo do dispositivo após atualizar a lista
+    setTimeout(() => {
+      inDeviceModel.value = data.deviceModel || "";
+      
+      // Atualiza as versões de software baseada no modelo restaurado
+      updateSoftwareVersions(platform, data.deviceModel || "");
+      
+      // Restaura a versão do software após atualizar a lista
+      setTimeout(() => {
+        inOSVersion.value = data.osVersion || "";
+      }, 50);
+    }, 50);
     inNetSpeed.value = data.netSpeed || "";
     inCam.value = data.cam || "";
     inAds.value = data.ads || "";
@@ -624,9 +1039,58 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const goNext = () => {
     if (!canGoNext()) {
+      // Validação específica para cada passo
+      if (currentStep === 1) {
+        const platformOk = rAndroid.checked || rIOS.checked;
+        const osOk = parseOSMajor() != null;
+        
+        let mensagem = "Complete os campos obrigatórios:";
+        let camposFaltando = [];
+        
+        if (!platformOk) {
+          camposFaltando.push("Plataforma (Android ou iOS)");
+          // Destaca visualmente o campo de plataforma
+          document.querySelector('.radio-row').classList.add('error');
+        } else {
+          // Remove o destaque se estiver preenchido
+          document.querySelector('.radio-row').classList.remove('error');
+        }
+        
+        if (!osOk) {
+          camposFaltando.push("Versão do software");
+          // Destaca visualmente o campo de versão
+          inOSVersion.classList.add('error');
+        } else {
+          // Remove o destaque se estiver preenchido
+          inOSVersion.classList.remove('error');
+        }
+        
+        if (camposFaltando.length > 0) {
+          mensagem += "\n• " + camposFaltando.join("\n• ");
+          toast(mensagem, "err", 3000);
+          return;
+        }
+      } else if (currentStep === 2) {
+        toast("Informe a velocidade da conexão em Mbps.", "err");
+        inNetSpeed.classList.add('error');
+        return;
+      } else if (currentStep === 3) {
+        toast("Preencha todos os campos de sensibilidade corretamente.", "err");
+        return;
+      }
+      
       toast("Complete os campos obrigatórios deste passo.", "err");
       return;
     }
+    
+    // Remove destaques de erro quando avança com sucesso
+    if (currentStep === 1) {
+      document.querySelector('.radio-row').classList.remove('error');
+      inOSVersion.classList.remove('error');
+    } else if (currentStep === 2) {
+      inNetSpeed.classList.remove('error');
+    }
+    
     if (currentStep < 3) {
       setStep(currentStep + 1);
     }
@@ -647,10 +1111,49 @@ document.addEventListener("DOMContentLoaded", () => {
     atualizarEstadoBotoes();
     render();
   };
-  [rAndroid, rIOS, inDeviceModel, inOSVersion].forEach(el => {
-    el && el.addEventListener("input", desativarSalvar);
+  
+  // Event listeners para remover destaques de erro quando usuário interage
+  const removeErrorHighlight = (element, isRadioGroup = false) => {
+    if (isRadioGroup) {
+      document.querySelector('.radio-row').classList.remove('error');
+    } else {
+      element.classList.remove('error');
+    }
+  };
+
+  // Campos da Tela 1 - Dispositivo
+  [rAndroid, rIOS].forEach(el => {
+    el && el.addEventListener("change", () => {
+      removeErrorHighlight(null, true);
+      
+      // Atualiza a lista de dispositivos baseada na plataforma selecionada
+      const platform = rAndroid.checked ? "android" : (rIOS.checked ? "ios" : null);
+      updateDeviceModels(platform);
+      
+      desativarSalvar();
+    });
   });
-  inNetSpeed.addEventListener("input", desativarSalvar);
+  
+  inOSVersion.addEventListener("change", () => {
+    removeErrorHighlight(inOSVersion);
+    desativarSalvar();
+  });
+  
+  // Atualiza o event listener para o select de dispositivos
+  inDeviceModel.addEventListener("change", () => {
+    // Atualiza as versões de software baseada no modelo selecionado
+    const platform = rAndroid.checked ? "android" : (rIOS.checked ? "ios" : null);
+    const deviceModel = inDeviceModel.value;
+    updateSoftwareVersions(platform, deviceModel);
+    
+    desativarSalvar();
+  });
+  
+  // Campo da Tela 2 - Conexão
+  inNetSpeed.addEventListener("input", () => {
+    removeErrorHighlight(inNetSpeed);
+    desativarSalvar();
+  });
 
   const FIELD_MAP = { cam: "cam", ads: "ads", livre: "livre", "gyro": "gyro", "gyro-ads": "gyroAds" };
   [inCam, inAds, inLivre, inGyro, inGyroAds].forEach(el => {
@@ -898,6 +1401,11 @@ document.addEventListener("DOMContentLoaded", () => {
   showPanel = false;
   btnSalvar.disabled = true;
   btnCarregar.disabled = true;
+  
+  // Inicializa os selects como desabilitados
+  updateDeviceModels(null);
+  updateSoftwareVersions(null, null);
+  
   atualizarEstadoBotoes();
   render();
 });
