@@ -1001,10 +1001,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Novo evento para gerar PDF
   btnGerarPdf.addEventListener("click", () => {
+    // Foco automático para acessibilidade
+    btnGerarPdf.focus();
     if (!showPanel || !resultadoCalculado) {
       toast("Calcule o resultado antes de gerar o PDF.", "err");
       return;
     }
+
+    // Feedback visual de carregamento
+    btnGerarPdf.classList.add("pulse");
 
     // Preparar os dados para o PDF
     const dadosPDF = {
@@ -1079,6 +1084,8 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
       toast("Erro ao gerar o PDF. Tente novamente.", "err");
+    } finally {
+      setTimeout(() => btnGerarPdf.classList.remove("pulse"), 600);
     }
   });
 
