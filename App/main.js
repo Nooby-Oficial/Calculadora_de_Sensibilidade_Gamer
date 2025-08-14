@@ -1477,7 +1477,81 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnFinalizar) {
     btnFinalizar.addEventListener("click", () => {
-      window.location.reload();
+      // Feedback tátil
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+      
+      // Verifica se há dados preenchidos
+      const platformRadios = document.querySelectorAll('input[name="platform"]');
+      const deviceSelected = Array.from(platformRadios).some(radio => radio.checked);
+      const deviceModelSelect = document.querySelector('#deviceModel');
+      const deviceModel = deviceSelected && deviceModelSelect ? deviceModelSelect.value : null;
+      const connectionRadios = document.querySelectorAll('input[name="connection"]');
+      const connectionSelected = Array.from(connectionRadios).some(radio => radio.checked);
+      const hasCalculatedResults = resultadoCalculado && showPanel;
+      
+      let statusMessage = "";
+      let lossCount = 0;
+      
+      if (deviceSelected) {
+        const selectedPlatform = Array.from(platformRadios).find(r => r.checked);
+        const platformText = selectedPlatform?.nextElementSibling?.textContent || 'Selecionado';
+        statusMessage += `<li>✖️ <strong>Dispositivo:</strong> ${platformText}</li>`;
+        lossCount++;
+      }
+      
+      if (deviceModel) {
+        statusMessage += `<li>✖️ <strong>Modelo:</strong> ${deviceModel}</li>`;
+        lossCount++;
+      }
+      
+      if (connectionSelected) {
+        const selectedConnection = Array.from(connectionRadios).find(r => r.checked);
+        const connectionText = selectedConnection?.nextElementSibling?.textContent || 'Selecionada';
+        statusMessage += `<li>✖️ <strong>Conexão:</strong> ${connectionText}</li>`;
+        lossCount++;
+      }
+      
+      if (hasCalculatedResults) {
+        statusMessage += `<li>✖️ <strong>Sensibilidades calculadas</strong> (não salvas)</li>`;
+        lossCount++;
+      }
+      
+      const warningLevel = lossCount > 0 ? "⚠️" : "✨";
+      const warningText = lossCount > 0 ? 
+        `<p style="color: #f59e0b; font-weight: 600; margin-bottom: 12px;">⚠️ ${lossCount} ${lossCount === 1 ? 'item será perdido' : 'itens serão perdidos'}:</p>` :
+        `<div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+          <p style="color: #059669; font-weight: 600; margin: 0;">✨ Pronto para começar do zero!</p>
+          <p style="color: #059669; font-size: 14px; margin: 4px 0 0 0;">Nenhum dado será perdido pois nada foi preenchido ainda.</p>
+        </div>`;
+      
+      showConfirmModal(
+        "🔄 Finalizar e Reiniciar",
+        `<div style="text-align: center; margin-bottom: 16px;">
+          <div style="font-size: 48px; margin-bottom: 12px;">${warningLevel}</div>
+          <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Tem certeza que deseja finalizar?</div>
+        </div>
+        ${warningText}
+        ${statusMessage ? `<ul style="text-align: left; margin: 12px 0; padding-left: 20px;">${statusMessage}</ul>` : ''}
+        <div style="background: rgba(91, 140, 255, 0.1); border: 1px solid rgba(91, 140, 255, 0.3); border-radius: 8px; padding: 12px; margin-top: 16px;">
+          <p style="margin: 0; font-size: 14px;"><strong>🔄 A página será recarregada</strong> e você retornará à <strong>Tela 1</strong> para iniciar um novo preenchimento.</p>
+        </div>`,
+        () => {
+          // Ação confirmada - recarregar página
+          toast("🔄 Finalizando e reiniciando...", "ok");
+          
+          // Feedback tátil de confirmação
+          if (navigator.vibrate) {
+            navigator.vibrate([100, 50, 100]);
+          }
+          
+          // Delay pequeno para mostrar o toast
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        }
+      );
     });
   }
 
