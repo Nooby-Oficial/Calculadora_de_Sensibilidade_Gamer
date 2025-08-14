@@ -81,56 +81,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const inGyro = $("#gyro");
   const inGyroAds = $("#gyro-ads");
 
-  // Passo 3 - Sensibilidades calculadas
-  // Câmera
-  const inSensCamTppNo = $("#cam-tppNo");
-  const inSensCamFppNo = $("#cam-fppNo");
-  const inSensCamRed = $("#cam-red");
-  const inSensCamX2 = $("#cam-2x");
-  const inSensCamX3 = $("#cam-3x");
-  const inSensCamX4 = $("#cam-4x");
-  const inSensCamX6 = $("#cam-6x");
-  const inSensCamX8 = $("#cam-8x");
-
-  // ADS
-  const inSensAdsTppNo = $("#ads-tppNo");
-  const inSensAdsFppNo = $("#ads-fppNo");
-  const inSensAdsRed = $("#ads-red");
-  const inSensAdsX2 = $("#ads-2x");
-  const inSensAdsX3 = $("#ads-3x");
-  const inSensAdsX4 = $("#ads-4x");
-  const inSensAdsX6 = $("#ads-6x");
-  const inSensAdsX8 = $("#ads-8x");
-
-  // Visão Livre
-  const inSensLivreThird = $("#livre-third");
-  const inSensLivreCam = $("#livre-cam");
-  const inSensLivreFirst = $("#livre-first");
-
-  // Giroscópio
-  const inGyroTppNo = $("#gyro-tppNo");
-  const inGyroFppNo = $("#gyro-fppNo");
-  const inGyroRed = $("#gyro-red");
-  const inGyroX2 = $("#gyro-2x");
-  const inGyroX3 = $("#gyro-3x");
-  const inGyroX4 = $("#gyro-4x");
-  const inGyroX6 = $("#gyro-6x");
-  const inGyroX8 = $("#gyro-8x");
-
-  // Giroscópio ADS
-  const inGyroAdsTppNo = $("#gyro-ads-tppNo");
-  const inGyroAdsFppNo = $("#gyro-ads-fppNo");
-  const inGyroAdsRed = $("#gyro-ads-red");
-  const inGyroAdsX2 = $("#gyro-ads-2x");
-  const inGyroAdsX3 = $("#gyro-ads-3x");
-  const inGyroAdsX4 = $("#gyro-ads-4x");
-  const inGyroAdsX6 = $("#gyro-ads-6x");
-  const inGyroAdsX8 = $("#gyro-ads-8x");
-
   // Ações
   const btnSalvar = $("#btnSalvar");
   const btnCarregar = $("#btnCarregar");
-  const btnGerarPdf = $("#btnGerarPdf");
+  const btnCriarPDF = $("#btnCriarPDF");
   const btnCalcular = $("#btnCalcular");
 
   const painel = $("#painel");
@@ -157,10 +111,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const camposValidos = camposSensibilidadeValidos();
       btnCalcular.disabled = !camposValidos;
       
-      // Só habilita Salvar e Gerar PDF se tiver calculado E campos válidos
+      // Só habilita Salvar se tiver calculado E campos válidos
       const podeExecutar = resultadoCalculado && camposValidos;
       btnSalvar.disabled = !podeExecutar;
-      btnGerarPdf.disabled = !podeExecutar;
     }
     if (btnNext) {
       btnNext.disabled = !canGoNext();
@@ -536,7 +489,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Atualiza estado dos botões
     btnSalvar.disabled = true;
-    btnGerarPdf.disabled = true;
     atualizarEstadoBotoes();
     
     // Limpa o painel de resultados
@@ -651,75 +603,6 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Erro ao salvar:", error);
       toast("Erro ao salvar configuração.", "err");
     }
-  };
-
-  // ====== Salvar como PDF ======
-  const gerarPDF = () => {
-    if (!showPanel || !resultadoCalculado) {
-      toast("Calcule o resultado antes de gerar o PDF.", "err");
-      return;
-    }
-    
-    // Prepara os dados completos para o PDF
-    const dadosPDF = {
-      resultados: painel,
-      configDevice: {
-        plataforma: rAndroid.checked ? "Android" : "iOS",
-        modelo: inDeviceModel.value,
-        versaoSO: inOSVersion.value,
-        velocidadeNet: inNetSpeed.value
-      },
-      configSensibilidade: {
-        camera: {
-          tppNo: inSensCamTppNo.value,
-          fppNo: inSensCamFppNo.value,
-          redDot: inSensCamRed.value,
-          x2: inSensCamX2.value,
-          x3: inSensCamX3.value,
-          x4: inSensCamX4.value,
-          x6: inSensCamX6.value,
-          x8: inSensCamX8.value
-        },
-        ads: {
-          tppNo: inSensAdsTppNo.value,
-          fppNo: inSensAdsFppNo.value,
-          redDot: inSensAdsRed.value,
-          x2: inSensAdsX2.value,
-          x3: inSensAdsX3.value,
-          x4: inSensAdsX4.value,
-          x6: inSensAdsX6.value,
-          x8: inSensAdsX8.value
-        },
-        gyro: gyroEnabled ? {
-          tppNo: inGyroTppNo.value,
-          fppNo: inGyroFppNo.value,
-          redDot: inGyroRed.value,
-          x2: inGyroX2.value,
-          x3: inGyroX3.value,
-          x4: inGyroX4.value,
-          x6: inGyroX6.value,
-          x8: inGyroX8.value
-        } : null,
-        gyroAds: gyroEnabled ? {
-          tppNo: inGyroAdsTppNo.value,
-          fppNo: inGyroAdsFppNo.value,
-          redDot: inGyroAdsRed.value,
-          x2: inGyroAdsX2.value,
-          x3: inGyroAdsX3.value,
-          x4: inGyroAdsX4.value,
-          x6: inGyroAdsX6.value,
-          x8: inGyroAdsX8.value
-        } : null,
-        livre: {
-          third: inSensLivreThird.value,
-          camera: inSensLivreCam.value,
-          first: inSensLivreFirst.value
-        }
-      }
-    };
-
-    // Gera o PDF com os dados completos
-    window.PDFGenerator.generatePDF(dadosPDF);
   };
 
   // ====== Regras de navegação ======
@@ -921,7 +804,6 @@ document.addEventListener("DOMContentLoaded", () => {
             resultadoCalculado = false;
             // Desativa todos os botões de ação
             btnSalvar.disabled = true;
-            btnGerarPdf.disabled = true;
             document.body.removeChild(modal);
             toast("Configuração restaurada! Calcule novamente para gerar PDF.", "ok");
           }
@@ -984,7 +866,6 @@ document.addEventListener("DOMContentLoaded", () => {
     resultadoCalculado = true;
     btnSalvar.disabled = false;
     btnCarregar.disabled = false;
-    btnGerarPdf.disabled = false;
     
     // Renderiza os resultados
     render();
@@ -999,94 +880,17 @@ document.addEventListener("DOMContentLoaded", () => {
     toast("✨ Resultados atualizados com sucesso!", "ok");
   });
 
-  // Novo evento para gerar PDF
-  btnGerarPdf.addEventListener("click", () => {
-    // Foco automático para acessibilidade
-    btnGerarPdf.focus();
-    if (!showPanel || !resultadoCalculado) {
+  // Novo evento para criar PDF com impressão
+  btnCriarPDF.addEventListener("click", () => {
+    if (!showPanel) {
       toast("Calcule o resultado antes de gerar o PDF.", "err");
       return;
     }
-
-    // Feedback visual de carregamento
-    btnGerarPdf.classList.add("pulse");
-
-    // Preparar os dados para o PDF
-    const dadosPDF = {
-      configDevice: {
-        plataforma: rIOS.checked ? "iPhone (iOS)" : (rAndroid.checked ? "Android" : "—"),
-        modelo: (inDeviceModel.value || "").trim() || "—",
-        versaoSO: parseOSMajor() || "—",
-        velocidadeNet: num(inNetSpeed.value) || "—"
-      },
-      configSensibilidade: {
-        camera: {
-          base: num(inCam.value),
-          tppNo: $(".right", $("#cam-tppNo"))?.textContent,
-          fppNo: $(".right", $("#cam-fppNo"))?.textContent,
-          redDot: $(".right", $("#cam-red"))?.textContent,
-          x2: $(".right", $("#cam-2x"))?.textContent,
-          x3: $(".right", $("#cam-3x"))?.textContent,
-          x4: $(".right", $("#cam-4x"))?.textContent,
-          x6: $(".right", $("#cam-6x"))?.textContent,
-          x8: $(".right", $("#cam-8x"))?.textContent
-        },
-        ads: {
-          base: num(inAds.value),
-          tppNo: $(".right", $("#ads-tppNo"))?.textContent,
-          fppNo: $(".right", $("#ads-fppNo"))?.textContent,
-          redDot: $(".right", $("#ads-red"))?.textContent,
-          x2: $(".right", $("#ads-2x"))?.textContent,
-          x3: $(".right", $("#ads-3x"))?.textContent,
-          x4: $(".right", $("#ads-4x"))?.textContent,
-          x6: $(".right", $("#ads-6x"))?.textContent,
-          x8: $(".right", $("#ads-8x"))?.textContent
-        },
-        livre: {
-          base: num(inLivre.value),
-          third: $(".right", $("#livre-third"))?.textContent,
-          camera: $(".right", $("#livre-cam"))?.textContent,
-          first: $(".right", $("#livre-first"))?.textContent
-        }
-      }
-    };
-
-    // Adicionar configurações do giroscópio se estiver habilitado
-    const gyroEnabled = num(inGyro.value) > 0 && num(inGyroAds.value) > 0;
-    if (gyroEnabled) {
-      dadosPDF.configSensibilidade.gyro = {
-        base: num(inGyro.value),
-        tppNo: $(".right", $("#gyro-tppNo"))?.textContent,
-        fppNo: $(".right", $("#gyro-fppNo"))?.textContent,
-        redDot: $(".right", $("#gyro-red"))?.textContent,
-        x2: $(".right", $("#gyro-2x"))?.textContent,
-        x3: $(".right", $("#gyro-3x"))?.textContent,
-        x4: $(".right", $("#gyro-4x"))?.textContent,
-        x6: $(".right", $("#gyro-6x"))?.textContent,
-        x8: $(".right", $("#gyro-8x"))?.textContent
-      };
-      dadosPDF.configSensibilidade.gyroAds = {
-        base: num(inGyroAds.value),
-        tppNo: $(".right", $("#gyro-ads-tppNo"))?.textContent,
-        fppNo: $(".right", $("#gyro-ads-fppNo"))?.textContent,
-        redDot: $(".right", $("#gyro-ads-red"))?.textContent,
-        x2: $(".right", $("#gyro-ads-2x"))?.textContent,
-        x3: $(".right", $("#gyro-ads-3x"))?.textContent,
-        x4: $(".right", $("#gyro-ads-4x"))?.textContent,
-        x6: $(".right", $("#gyro-ads-6x"))?.textContent,
-        x8: $(".right", $("#gyro-ads-8x"))?.textContent
-      };
-    }
-
-    try {
-      window.PDFGenerator.generatePDF(dadosPDF);
-      toast("PDF gerado com sucesso!", "ok");
-    } catch (error) {
-      console.error("Erro ao gerar PDF:", error);
-      toast("Erro ao gerar o PDF. Tente novamente.", "err");
-    } finally {
-      setTimeout(() => btnGerarPdf.classList.remove("pulse"), 600);
-    }
+    const oldTitle = document.title;
+    document.title = "Configuração de Sensibilidade";
+    window.print();
+    document.title = oldTitle;
+    toast("PDF gerado com sucesso.", "ok");
   });
 
   // ====== Init ======
