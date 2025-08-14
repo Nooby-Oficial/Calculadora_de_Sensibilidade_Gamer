@@ -907,15 +907,25 @@ document.addEventListener("DOMContentLoaded", () => {
       btnRestore.className = "btn";
       btnRestore.textContent = "Restaurar";
       btnRestore.onclick = () => {
-        restore(item);
-        // Reseta o estado dos resultados
-        showPanel = false;
-        resultadoCalculado = false;
-        // Desativa todos os botões de ação
-        btnSalvar.disabled = true;
-        btnGerarPdf.disabled = true;
-        document.body.removeChild(modal);
-        toast("Configuração restaurada! Calcule novamente para gerar PDF.", "ok");
+        const date = new Date(item.date);
+        const dateStr = DateFormatter.format(date).completo;
+        const deviceInfo = item.deviceModel || item.platform;
+        
+        showConfirmModal(
+          "Restaurar Configuração",
+          `Deseja restaurar a configuração salva em ${dateStr} para ${deviceInfo}? Os valores atuais serão substituídos.`,
+          () => {
+            restore(item);
+            // Reseta o estado dos resultados
+            showPanel = false;
+            resultadoCalculado = false;
+            // Desativa todos os botões de ação
+            btnSalvar.disabled = true;
+            btnGerarPdf.disabled = true;
+            document.body.removeChild(modal);
+            toast("Configuração restaurada! Calcule novamente para gerar PDF.", "ok");
+          }
+        );
       };
       actions.appendChild(btnRestore);
 
@@ -964,12 +974,29 @@ document.addEventListener("DOMContentLoaded", () => {
       toast("Preencha todos os campos de sensibilidade corretamente.", "err");
       return;
     }
+
+    // Adiciona efeito visual de atualização
+    btnCalcular.classList.add("pulse");
+    painel.classList.add("fade-update");
+    
+    // Atualiza o estado
     showPanel = true;
     resultadoCalculado = true;
     btnSalvar.disabled = false;
     btnCarregar.disabled = false;
     btnGerarPdf.disabled = false;
+    
+    // Renderiza os resultados
     render();
+    
+    // Remove a classe de pulse após a animação
+    setTimeout(() => {
+      btnCalcular.classList.remove("pulse");
+      painel.classList.remove("fade-update");
+    }, 500);
+    
+    // Mostra mensagem de sucesso
+    toast("✨ Resultados atualizados com sucesso!", "ok");
   });
 
   // Novo evento para gerar PDF

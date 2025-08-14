@@ -148,6 +148,27 @@ body {
   border-color: rgba(239,68,68,0.5);
 }
 
+/* Animação de pulso para o botão calcular */
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 4px 14px rgba(0,0,0,0.25); }
+  50% { transform: scale(1.05); box-shadow: 0 6px 20px rgba(91,140,255,0.4); }
+  100% { transform: scale(1); box-shadow: 0 4px 14px rgba(0,0,0,0.25); }
+}
+
+.btn.pulse {
+  animation: pulse 0.5s ease-in-out;
+}
+
+/* Animação para o painel de resultados */
+@keyframes fade-update {
+  0% { opacity: 0.5; transform: scale(0.98); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.fade-update {
+  animation: fade-update 0.5s ease-out;
+}
+
 .nav {
   display: flex;
   align-items: center;
