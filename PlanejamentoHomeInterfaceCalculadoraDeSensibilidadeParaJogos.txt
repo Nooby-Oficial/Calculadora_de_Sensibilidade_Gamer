@@ -1,11 +1,12 @@
-Faça as alterações desejadas - Subir atualização de projeto.
+Faça as alterações desejadas - Subir atualização de projeto (apenas no novo repositório oficial).
+Repositório oficial (origin): git@github.com:Nooby-Oficial/Calculadora_de_Sensibilidade_Gamer.git
 git add .
 git commit -m "Alteração no repositório local"
-git push <nome-remoto> main
+git push origin main
 
 Criar prompt para o maximo de eficiencia e acertividade:
 
-Calculadora de Sensibilidade para jogos - Copia/home_interface
+Calculadora_de_Sensibilidade_Gamer/home_interface
 ├── home_interface    
     └── ├── public/
         │   └── index.html              # Arquivo HTML principal
@@ -41,7 +42,7 @@ Vamos implementar melhorias nas Tela Inicial - Pasta "home_interface":
 
 -Analise os dados fornecido e dados presentes no projeto para implantação eficiente e produtiva-
 //-----------------------
-cd "d:\Downloads\Serve 404\Projetos\Calculadora de Sensibilidade para jogos - Copia\home_interface"
+cd "D:\Downloads\Serve 404\Projetos\Calculadora_de_Sensibilidade_Gamer\home_interface"
 /------------------------
 
 Segue link projeto beta concluído: https://calculadora-de-sensibilidade-para-j.vercel.app/
