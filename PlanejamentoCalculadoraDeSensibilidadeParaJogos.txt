@@ -97,6 +97,14 @@ Vamos realizar melhorias:
 2-O botão "Carregar" agora vai ser "Historico de Sensibilidades" e alem de trazer de volta o salve a função de gerar o pdf completo do resultado final será na tela de historico, ao loda da opção restaurar add opção do pdf.
 
 Vamos aplicar essas melhorias de forma clara e funcional, mantendo a estrutura original do projeto!
+//----------------------
+-"pt-BR"-
+Vamos implementar melhorias nas Tela 1, 2 e 3 - Dispositivo, Conexão e Sensibilidade:
+
+1-?
+
+-Analise os dados fornecido e dados presentes no projeto para implantação eficiente e produtiva-
+//-----------------------
 
 Prompt de Desenvolvimento: Calculadora de Sensibilidade Mobile para PUBG MOBILE
 Objetivo: Criar uma ferramenta inteligente e responsiva para cálculo de sensibilidade em jogos FPS, com foco inicial em PUBG MOBILE, otimizando desempenho do jogador conforme dispositivo, modo de jogo e estilo pessoal.
