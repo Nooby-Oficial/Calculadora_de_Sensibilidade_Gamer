@@ -205,9 +205,46 @@ body {
 .btn:hover { transform: translateY(-1px); border-color: var(--accent); }
 .btn:active { transform: translateY(0); }
 .btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+/* Estados específicos para botões ghost (Carregar e Criar PDF) */
+.btn.ghost[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: transparent;
+  border-color: rgba(156, 163, 175, 0.3);
+  color: rgba(107, 114, 128, 0.6);
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.btn.ghost[disabled]:hover {
+  transform: none;
+  border-color: rgba(156, 163, 175, 0.3);
+  background: transparent;
+}
+
+/* Ícone de bloqueio para botões ghost desabilitados */
+.btn.ghost[disabled]::before {
+  content: '🔒 ';
+  font-size: 12px;
+  opacity: 0.6;
+}
 .btn.ghost {
   background: transparent;
   border-color: var(--border);
+  transition: all 0.25s ease;
+}
+
+.btn.ghost:hover:not([disabled]) {
+  background: rgba(91, 140, 255, 0.05);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(91, 140, 255, 0.15);
+}
+
+.btn.ghost:active:not([disabled]) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(91, 140, 255, 0.1);
 }
 .btn.danger {
   background: linear-gradient(180deg, rgba(239,68,68,0.14), rgba(239,68,68,0.06));
@@ -434,143 +471,240 @@ body {
 }
 
 /* Ações do modal de configuração duplicada */
+/* Duplicate config modal buttons */
 .duplicate-actions {
   display: flex;
-  gap: 16px;
-  padding: 20px 24px;
-  background: linear-gradient(135deg, rgba(91, 140, 255, 0.02), rgba(91, 140, 255, 0.05));
-  border-top: 1px solid rgba(91, 140, 255, 0.1);
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 0 16px 12px 16px; /* Padding inferior igual ao gap entre botões */
+  margin-top: 8px;
+}
+
+/* Override do padding padrão de modal-actions para duplicate-actions */
+.modal-actions.duplicate-actions {
+  padding: 0 16px 12px 16px; /* Anula o padding de 24px e define 12px inferior */
 }
 
 .duplicate-actions .btn {
   flex: 1;
+  min-width: 140px;
+  max-width: 180px;
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 2px solid;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  border: 2px solid;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+  cursor: pointer;
   position: relative;
   overflow: hidden;
-  min-height: 48px; /* Reduzido de 60px para 48px */
-  max-width: 200px; /* Limita largura máxima */
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-.duplicate-actions .btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  transition: left 0.5s ease;
+.duplicate-actions .btn.compact {
+  padding: 8px 14px;
+  min-height: 40px;
+  border-radius: 7px;
+  gap: 6px;
 }
 
-.duplicate-actions .btn:hover::before {
-  left: 100%;
-}
-
-.btn-icon {
-  font-size: 20px;
-  line-height: 1;
+.duplicate-actions .btn-icon {
+  font-size: 16px;
   flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
+  transition: all 0.25s ease;
 }
 
-.btn-content {
+.duplicate-actions .btn-text {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  flex: 1;
-}
-
-.btn-label {
-  font-size: 15px;
-  font-weight: 700;
+  align-items: center;
+  gap: 1px;
   line-height: 1.2;
 }
 
-.btn-desc {
-  font-size: 12px;
-  opacity: 0.85;
+.duplicate-actions .btn-primary {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.duplicate-actions .btn-secondary {
+  font-size: 10px;
   font-weight: 500;
-  line-height: 1.3;
+  opacity: 0.9;
+  line-height: 1.2;
 }
 
 /* Botão Sobrescrever */
-.overwrite-btn {
-  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
-  border-color: #ff9800;
+.duplicate-actions .overwrite-btn {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  border-color: #ff6b35;
   color: white;
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.25);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25);
 }
 
-.overwrite-btn:hover {
-  background: linear-gradient(135deg, #f57c00 0%, #ef6c00 100%);
-  border-color: #f57c00;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(255, 152, 0, 0.4);
+.duplicate-actions .overwrite-btn .btn-primary {
+  color: white;
+  font-weight: 700;
 }
 
-.overwrite-btn:active {
+.duplicate-actions .overwrite-btn .btn-secondary {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+.duplicate-actions .overwrite-btn:hover {
+  background: linear-gradient(135deg, #e55a2b 0%, #d6831a 100%);
+  border-color: #e55a2b;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(255, 107, 53, 0.4);
+}
+
+.duplicate-actions .overwrite-btn:hover .btn-icon {
+  transform: rotate(180deg);
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+}
+
+.duplicate-actions .overwrite-btn:active {
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* Botão Manter */
-.keep-btn {
+.duplicate-actions .keep-btn {
   background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
   border-color: #4CAF50;
   color: white;
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.25);
 }
 
-.keep-btn:hover {
+.duplicate-actions .keep-btn .btn-primary {
+  color: white;
+  font-weight: 700;
+}
+
+.duplicate-actions .keep-btn .btn-secondary {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+.duplicate-actions .overwrite-btn:hover {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #7B68EE 100%);
+  color: white;
+  border-color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(106, 90, 205, 0.3);
+}
+
+.duplicate-actions .overwrite-btn:hover .btn-primary,
+.duplicate-actions .overwrite-btn:hover .btn-secondary {
+  color: white;
+}
+
+.duplicate-actions .overwrite-btn:hover .btn-icon {
+  transform: rotate(180deg);
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+}
+
+.duplicate-actions .overwrite-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Botão Manter */
+.duplicate-actions .keep-btn:hover {
   background: linear-gradient(135deg, #388E3C 0%, #2E7D32 100%);
   border-color: #388E3C;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
 }
 
-.keep-btn:active {
+.duplicate-actions .keep-btn:hover .btn-icon {
+  transform: scale(1.1);
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+}
+
+.duplicate-actions .keep-btn:active {
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Animação de pulso para highlight */
-@keyframes button-pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-  100% { transform: scale(1); }
-}
-
+/* Focus e estados especiais */
 .duplicate-actions .btn:focus {
   outline: none;
-  animation: button-pulse 0.3s ease;
+  box-shadow: 0 0 0 3px rgba(106, 90, 205, 0.4), 0 4px 12px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+
+.duplicate-actions .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Animação de entrada */
+@keyframes button-entrance {
+  0% { 
+    opacity: 0; 
+    transform: translateY(10px) scale(0.95); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+}
+
+.duplicate-actions .btn {
+  animation: button-entrance 0.3s ease-out;
+}
+
+.duplicate-actions .btn:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.duplicate-actions .btn:nth-child(2) {
+  animation-delay: 0.2s;
 }
 
 /* Touch-friendly e acessibilidade mobile */
 @media (max-width: 640px) {
   .duplicate-actions {
     flex-direction: column;
-    gap: 16px;
-    padding: 20px 16px 24px;
+    gap: 14px;
+    padding: 16px 12px 14px 12px; /* Padding inferior igual ao gap entre botões */
     background: linear-gradient(135deg, rgba(91, 140, 255, 0.03), rgba(91, 140, 255, 0.08));
+    border-radius: 12px;
+    margin: 0 8px;
+  }
+  
+  /* Override específico para mobile */
+  .modal-actions.duplicate-actions {
+    padding: 16px 12px 14px 12px; /* Anula padding padrão e define espaçamento consistente */
   }
   
   .duplicate-actions .btn {
-    min-height: 56px; /* Reduzido de 64px para 56px - mantém acessibilidade */
-    padding: 14px 18px; /* Reduzido padding */
-    border-radius: 12px; /* Reduzido de 16px para 12px */
-    font-size: 14px; /* Reduzido de 15px para 14px */
-    gap: 10px; /* Reduzido de 14px para 10px */
-    position: relative;
-    -webkit-tap-highlight-color: transparent; /* Remove highlight azul no iOS */
-    touch-action: manipulation; /* Otimiza para toque */
+    width: 100%;
+    max-width: none;
+    min-height: 48px;
+    padding: 12px 18px;
+    font-size: 14px;
+    gap: 10px;
+    border-radius: 10px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  .duplicate-actions .btn.compact {
+    min-height: 46px;
+    padding: 10px 16px;
+    gap: 8px;
   }
   
   /* Feedback tátil melhorado */
@@ -579,79 +713,90 @@ body {
     transition: transform 0.1s ease;
   }
   
-  .btn-icon {
-    font-size: 22px; /* Ícones maiores para melhor visibilidade */
+  .duplicate-actions .btn-icon {
+    font-size: 18px;
     line-height: 1;
     flex-shrink: 0;
   }
   
-  .btn-content {
-    gap: 4px; /* Mais espaço entre label e descrição */
+  .duplicate-actions .btn-text {
+    gap: 2px;
   }
   
-  .btn-label {
-    font-size: 16px; /* Texto maior para legibilidade */
+  .duplicate-actions .btn-primary {
+    font-size: 14px;
     font-weight: 700;
     line-height: 1.1;
   }
   
-  .btn-desc {
-    font-size: 13px; /* Descrição mais legível */
+  .duplicate-actions .btn-secondary {
+    font-size: 12px;
     opacity: 0.9;
     font-weight: 500;
-    line-height: 1.4;
+    line-height: 1.3;
   }
   
   /* Sombras otimizadas para mobile */
-  .overwrite-btn {
-    box-shadow: 0 6px 16px rgba(255, 152, 0, 0.3);
+  .duplicate-actions .overwrite-btn:hover {
+    box-shadow: 0 4px 12px rgba(106, 90, 205, 0.3);
   }
   
-  .overwrite-btn:active {
-    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4);
+  .duplicate-actions .overwrite-btn:active {
+    box-shadow: 0 2px 4px rgba(106, 90, 205, 0.4);
   }
   
-  .keep-btn {
-    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.3);
+  .duplicate-actions .keep-btn:hover {
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
   }
   
-  .keep-btn:active {
-    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
+  .duplicate-actions .keep-btn:active {
+    box-shadow: 0 2px 4px rgba(76, 175, 80, 0.4);
   }
 }
 
 /* Extra otimizações para telas muito pequenas */
 @media (max-width: 480px) {
   .duplicate-config-modal {
-    width: calc(100% - 16px);
-    margin: 8px;
-    max-height: 92vh;
+    width: calc(100% - 12px);
+    margin: 6px;
+    border-radius: 10px;
   }
   
   .duplicate-actions {
-    padding: 18px 14px 22px;
-    gap: 14px;
+    gap: 12px;
+    padding: 14px 10px 12px 10px; /* Padding inferior igual ao gap entre botões */
+    margin: 0 4px;
+  }
+  
+  /* Override específico para telas pequenas */
+  .modal-actions.duplicate-actions {
+    padding: 14px 10px 12px 10px; /* Mantém consistência com o gap */
   }
   
   .duplicate-actions .btn {
-    min-height: 60px; /* Reduzido de 68px para 60px */
-    padding: 16px 18px; /* Reduzido padding */
-    border-radius: 14px; /* Reduzido de 18px para 14px */
+    min-height: 50px;
+    padding: 12px 16px;
+    font-size: 14px;
+    gap: 8px;
+    border-radius: 8px;
   }
   
-  .btn-icon {
-    font-size: 22px; /* Reduzido de 24px para 22px */
+  .duplicate-actions .btn.compact {
+    min-height: 48px;
+    padding: 10px 14px;
+    gap: 6px;
   }
   
-  .btn-label {
-    font-size: 16px; /* Reduzido de 17px para 16px */
-    font-weight: 700; /* Reduzido de 800 para 700 */
+  .duplicate-actions .btn-icon {
+    font-size: 17px;
   }
   
-  .btn-desc {
-    font-size: 14px; /* Descrição bem legível */
-    opacity: 0.95;
-    font-weight: 600; /* Mais peso para contraste */
+  .duplicate-actions .btn-primary {
+    font-size: 14px;
+  }
+  
+  .duplicate-actions .btn-secondary {
+    font-size: 11px;
   }
 }
 

@@ -532,6 +532,23 @@ document.addEventListener("DOMContentLoaded", () => {
       // Só habilita Salvar se tiver calculado E campos válidos
       const podeExecutar = resultadoCalculado && camposValidos;
       btnSalvar.disabled = !podeExecutar;
+      
+      // Só habilita Criar PDF se tiver campos válidos E resultado calculado
+      const podeGerar = resultadoCalculado && camposValidos && showPanel;
+      btnCriarPDF.disabled = !podeGerar;
+      
+      // Atualiza tooltip do botão baseado no estado
+      if (podeGerar) {
+        btnCriarPDF.title = 'Gerar PDF com os resultados calculados';
+      } else {
+        if (!camposValidos) {
+          btnCriarPDF.title = 'Complete todos os campos de sensibilidade para gerar PDF';
+        } else if (!resultadoCalculado) {
+          btnCriarPDF.title = 'Calcule os resultados antes de gerar o PDF';
+        } else {
+          btnCriarPDF.title = 'PDF indisponível - verifique os dados';
+        }
+      }
     }
     if (btnNext) {
       btnNext.disabled = !canGoNext();
@@ -683,26 +700,26 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         </div>
         <div class="modal-actions duplicate-actions">
-          <button class="btn overwrite-btn" 
+          <button class="btn overwrite-btn compact" 
                   aria-label="Sobrescrever configuração existente - única forma de decidir" 
                   role="button"
                   tabindex="0"
                   title="Clique para sobrescrever (ESC e clique fora não funcionam)">
             <span class="btn-icon" aria-hidden="true">🔄</span>
-            <span class="btn-content">
-              <span class="btn-label">Sobrescrever</span>
-              <span class="btn-desc">Atualizar com horário atual</span>
+            <span class="btn-text">
+              <span class="btn-primary">Sobrescrever</span>
+              <span class="btn-secondary">Atualizar</span>
             </span>
           </button>
-          <button class="btn keep-btn" 
+          <button class="btn keep-btn compact" 
                   aria-label="Manter configuração existente - única forma de decidir" 
                   role="button"
                   tabindex="0"
                   title="Clique para manter (ESC e clique fora não funcionam)">
             <span class="btn-icon" aria-hidden="true">✅</span>
-            <span class="btn-content">
-              <span class="btn-label">Manter Existente</span>
-              <span class="btn-desc">Preservar configuração salva</span>
+            <span class="btn-text">
+              <span class="btn-primary">Manter</span>
+              <span class="btn-secondary">Preservar</span>
             </span>
           </button>
         </div>
@@ -1941,6 +1958,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Renderiza os resultados
     render();
     
+    // Atualiza estado dos botões após calcular
+    atualizarEstadoBotoes();
+    
     // Remove a classe de pulse após a animação
     setTimeout(() => {
       btnCalcular.classList.remove("pulse");
@@ -1952,16 +1972,33 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Novo evento para criar PDF com impressão
-  btnCriarPDF.addEventListener("click", () => {
-    if (!showPanel) {
-      toast("Calcule o resultado antes de gerar o PDF.", "err");
+  btnCriarPDF.addEventListener("click", (e) => {
+    // Previne ação se botão estiver desabilitado
+    if (btnCriarPDF.disabled) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      if (!camposSensibilidadeValidos()) {
+        toast("❌ Complete todos os campos de sensibilidade para gerar PDF", "err");
+      } else if (!resultadoCalculado || !showPanel) {
+        toast("❌ Calcule os resultados antes de gerar o PDF", "err");
+      } else {
+        toast("❌ PDF indisponível - verifique os dados", "err");
+      }
       return;
     }
+    
+    // Validação dupla de segurança
+    if (!showPanel || !resultadoCalculado || !camposSensibilidadeValidos()) {
+      toast("❌ Dados incompletos. Complete todos os campos e calcule os resultados.", "err");
+      return;
+    }
+    
     const oldTitle = document.title;
     document.title = "Configuração de Sensibilidade";
     window.print();
     document.title = oldTitle;
-    toast("PDF gerado com sucesso.", "ok");
+    toast("�️ PDF gerado com sucesso!", "ok");
   });
 
   // ====== Init ======
