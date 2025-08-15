@@ -56,14 +56,14 @@ home_interface/
 - npm ou yarn
 
 ### Instalação
-1. Clone o repositório
+1. Clone o repositório oficial
 ```bash
-git clone https://github.com/Nooby-Oficial/Calculadora-de-Sensibilidade-para-Jogos-Mobile.git
+git clone https://github.com/Nooby-Oficial/Calculadora_de_Sensibilidade_Gamer.git
 ```
 
 2. Navegue até a pasta home_interface
 ```bash
-cd home_interface
+cd Calculadora_de_Sensibilidade_Gamer/home_interface
 ```
 
 3. Instale as dependências
@@ -76,7 +76,7 @@ npm install
 npm run dev
 ```
 
-5. Abra o navegador em `http://localhost:3000`
+5. Abra o navegador em `http://localhost:5173`
 
 ## 📋 Scripts Disponíveis
 
