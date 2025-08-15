@@ -1366,6 +1366,30 @@ body {
   overflow: hidden;
 }
 
+/* Estado de processamento para itens sendo removidos */
+.history-item.processing {
+  opacity: 0.5;
+  pointer-events: none;
+  filter: grayscale(0.3);
+  transition: all 0.3s ease;
+}
+
+.history-item.processing::after {
+  content: '⏳';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  z-index: 10;
+  animation: pulse-processing 1s infinite;
+}
+
+@keyframes pulse-processing {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+}
+
 /* Removido indicador ↗️ pois modal não fecha mais automaticamente */
 
 /* Animação de feedback ao clicar */

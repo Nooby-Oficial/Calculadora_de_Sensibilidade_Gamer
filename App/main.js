@@ -887,7 +887,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Modal de confirmação
-  const showConfirmModal = (title, message, onConfirm) => {
+  const showConfirmModal = (title, message, onConfirm, onCancel = null) => {
     // Remove modal existente se houver
     const existingModal = document.querySelector('.modal-overlay');
     if (existingModal) {
@@ -943,7 +943,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (onConfirm) onConfirm();
     });
 
-    cancelBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', () => {
+      closeModal();
+      if (onCancel) onCancel();
+    });
     
     // Clique no overlay não fecha mais - apenas feedback visual
     modalOverlay.addEventListener('click', (e) => {
@@ -1660,8 +1663,8 @@ document.addEventListener("DOMContentLoaded", () => {
           
           <div class="history-item-actions">
             <button class="btn primary restore-btn" data-index="${index}" 
-                    title="Restaurar configuração (modal permanece aberto)"
-                    aria-label="Restaurar configuração salva em ${DateFormatter.format(new Date(item.date)).completo} - modal permanece aberto">
+                    title="Restaurar configuração (retorna à Tela 3 Sensibilidade)"
+                    aria-label="Restaurar configuração salva em ${DateFormatter.format(new Date(item.date)).completo} - retorna à Tela 3 Sensibilidade">
               ↩️ Restaurar
             </button>
             <button class="btn ghost danger remove-btn" data-index="${index}"
@@ -1739,6 +1742,12 @@ document.addEventListener("DOMContentLoaded", () => {
           toast("🗑️ Histórico limpo com sucesso! Use o botão FECHAR para sair.", "ok");
           btnCarregar.disabled = true;
           
+          // Atualiza o cabeçalho para mostrar 0 configurações
+          const historyCount = modalOverlay.querySelector('.history-count');
+          if (historyCount) {
+            historyCount.textContent = '0 configurações salvas';
+          }
+          
           // Atualiza o conteúdo do modal para mostrar lista vazia
           const historyList = modalOverlay.querySelector('.history-list');
           historyList.innerHTML = `
@@ -1759,6 +1768,17 @@ document.addEventListener("DOMContentLoaded", () => {
           if (navigator.vibrate) {
             navigator.vibrate([100, 50, 100]);
           }
+          
+          // Reabre o modal do histórico com estado vazio
+          setTimeout(() => {
+            showHistoryModal([]);
+          }, 100);
+        },
+        // Callback de cancelamento - reabre o modal do histórico
+        () => {
+          setTimeout(() => {
+            showHistoryModal(historyItems);
+          }, 100);
         }
       );
     });
@@ -1787,13 +1807,23 @@ document.addEventListener("DOMContentLoaded", () => {
             resultadoCalculado = false;
             // Desativa todos os botões de ação
             btnSalvar.disabled = true;
-            // Modal permanece aberto - usuário deve usar botão FECHAR
-            toast("↩️ Configuração restaurada! Use o botão FECHAR para sair.", "ok");
+            // Atualiza estado dos botões
+            atualizarEstadoBotoes();
+            // Modal de histórico fecha automaticamente - retorna à Tela 3
+            toast("↩️ Configuração restaurada com sucesso!", "ok");
             
             // Feedback tátil de sucesso
             if (navigator.vibrate) {
               navigator.vibrate([100, 50, 100]);
             }
+            
+            // NÃO reabre o modal do histórico - retorna à Tela 3 automaticamente
+          },
+          // Callback de cancelamento - reabre o modal do histórico
+          () => {
+            setTimeout(() => {
+              showHistoryModal(historyItems);
+            }, 100);
           }
         );
       });
@@ -1820,10 +1850,22 @@ document.addEventListener("DOMContentLoaded", () => {
             historyItems.splice(index, 1);
             localStorage.setItem(CONFIG.STORAGE.HISTORY_KEY, JSON.stringify(historyItems));
             
+            // Feedback visual de processamento
+            const historyItem = btn.closest('.history-item');
+            if (historyItem) {
+              historyItem.classList.add('processing');
+            }
+            
             // Modal permanece aberto - atualiza conteúdo dinamicamente
             if (historyItems.length === 0) {
               btnCarregar.disabled = true;
               toast("📭 Último item removido! Use o botão FECHAR para sair.", "ok");
+              
+              // Atualiza o cabeçalho para mostrar 0 configurações
+              const historyCount = modalOverlay.querySelector('.history-count');
+              if (historyCount) {
+                historyCount.textContent = '0 configurações salvas';
+              }
               
               // Atualiza o conteúdo para mostrar lista vazia
               const historyList = modalOverlay.querySelector('.history-list');
@@ -1841,6 +1883,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 clearBtn.style.display = 'none';
               }
             } else {
+              // Atualiza o contador no cabeçalho
+              const historyCount = modalOverlay.querySelector('.history-count');
+              if (historyCount) {
+                historyCount.textContent = `${historyItems.length} configuração${historyItems.length !== 1 ? 'ões' : ''} salva${historyItems.length !== 1 ? 's' : ''}`;
+              }
+              
               toast(`🗑️ Configuração removida! ${historyItems.length} ${historyItems.length === 1 ? 'configuração restante' : 'configurações restantes'}.`, "ok");
               
               // Remove apenas o item específico do DOM
@@ -1849,14 +1897,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 historyItem.style.animation = 'fade-out 0.3s ease';
                 setTimeout(() => {
                   historyItem.remove();
-                  // Reindexar os botões restantes
-                  modalOverlay.querySelectorAll('.restore-btn, .remove-btn').forEach((button, newIndex) => {
-                    const actionType = button.classList.contains('restore-btn') ? 'restore-btn' : 'remove-btn';
-                    if (actionType === 'restore-btn') {
-                      button.dataset.index = Math.floor(newIndex / 2);
-                    } else {
-                      button.dataset.index = Math.floor(newIndex / 2);
-                    }
+                  
+                  // Reindexar os botões restantes corretamente
+                  modalOverlay.querySelectorAll('.history-item').forEach((item, newIndex) => {
+                    const restoreBtn = item.querySelector('.restore-btn');
+                    const removeBtn = item.querySelector('.remove-btn');
+                    if (restoreBtn) restoreBtn.dataset.index = newIndex;
+                    if (removeBtn) removeBtn.dataset.index = newIndex;
+                  });
+                  
+                  // Atualiza referências do array para refletir os novos índices
+                  historyItems.forEach((item, idx) => {
+                    item._displayIndex = idx;
                   });
                 }, 300);
               }
@@ -1866,6 +1918,17 @@ document.addEventListener("DOMContentLoaded", () => {
             if (navigator.vibrate) {
               navigator.vibrate([100, 50, 100]);
             }
+            
+            // Reabre o modal do histórico com dados atualizados
+            setTimeout(() => {
+              showHistoryModal(historyItems);
+            }, 100);
+          },
+          // Callback de cancelamento - reabre o modal do histórico
+          () => {
+            setTimeout(() => {
+              showHistoryModal(historyItems);
+            }, 100);
           }
         );
       });
