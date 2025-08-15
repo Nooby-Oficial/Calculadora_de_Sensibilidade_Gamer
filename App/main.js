@@ -1409,7 +1409,14 @@ document.addEventListener("DOMContentLoaded", () => {
       stepConfig.message,
       () => {
         // Confirmado - volta para tela anterior
+        const wasOnStep3 = currentStep === 3;
         setStep(currentStep - 1);
+        
+        // Se estava na tela 3 (Sensibilidade), esconde o painel de resultados
+        if (wasOnStep3) {
+          showPanel = false;
+        }
+        
         render();
         toast("Retornado para tela anterior.", "ok");
       }
